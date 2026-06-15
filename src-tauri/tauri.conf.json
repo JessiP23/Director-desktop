@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "director-desktop",
+  "productName": "Director",
   "version": "0.1.0",
   "identifier": "com.jessipavia.director-desktop",
   "build": {
@@ -12,13 +12,18 @@
   "app": {
     "windows": [
       {
-        "title": "director-desktop",
-        "width": 800,
-        "height": 600
+        "title": "Director",
+        "width": 1280,
+        "height": 832,
+        "minWidth": 920,
+        "minHeight": 600,
+        "center": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; connect-src 'self' https: wss:; style-src 'self' 'unsafe-inline'; font-src 'self' data: https:; script-src 'self'"
     }
   },
   "bundle": {
