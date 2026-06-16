@@ -13,9 +13,12 @@ export function useRuns() {
 
   const refresh = React.useCallback(async () => {
     try {
-      setRuns(await directorApi.listRuns());
+      const loaded = await directorApi.listRuns();
+      console.info("[runs] loaded", loaded.length, "production(s)");
+      setRuns(loaded);
       setError(null);
     } catch (err) {
+      console.error("[runs] failed to load", err);
       setError(err instanceof Error ? err.message : "Failed to load runs");
     } finally {
       setLoading(false);

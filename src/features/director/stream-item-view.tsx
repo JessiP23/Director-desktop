@@ -1,7 +1,10 @@
+import { Brand } from "@/components/ui/brand";
 import { Button } from "@/components/ui/button";
+import { Markdown } from "@/components/ui/markdown";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils/cn";
 import type { StreamItem } from "@/lib/director/stream";
+import { GenerationMedia } from "./media-view";
 
 /** Human-readable label for an internal Director delegation/activity tool. */
 function activityLabel(toolName: string): string {
@@ -14,16 +17,6 @@ function activityLabel(toolName: string): string {
     write_todos: "Planning",
   };
   return map[toolName] ?? toolName.replace(/_/g, " ");
-}
-
-function GenerationMedia({ url, kind }: { url: string; kind?: string }) {
-  if (kind === "video") {
-    return <video src={url} controls className="max-h-96 w-full rounded-xl bg-black" />;
-  }
-  if (kind === "audio") {
-    return <audio src={url} controls className="w-full" />;
-  }
-  return <img src={url} alt="Generated frame" className="max-h-96 w-full rounded-xl object-contain bg-black/40" />;
 }
 
 export function StreamItemView({
@@ -45,10 +38,9 @@ export function StreamItemView({
 
     case "message":
       return (
-        <div className="flex justify-start">
-          <div className="max-w-[85%] whitespace-pre-wrap text-sm leading-relaxed text-fg">
-            {item.text}
-          </div>
+        <div className="flex justify-start gap-3">
+          <Brand showWordmark={false} className="mt-1 shrink-0" />
+          <Markdown className="max-w-[85%]">{item.text}</Markdown>
         </div>
       );
 
@@ -94,7 +86,7 @@ export function StreamItemView({
       if (item.status === "awaiting-confirmation" && !item.confirmed) {
         return (
           <div className="rounded-2xl border border-accent/30 bg-ink-850 p-4">
-            <p className="text-sm text-fg">{item.previewMessage ?? "Ready to generate this?"}</p>
+            <Markdown>{item.previewMessage ?? "Ready to generate this?"}</Markdown>
             {typeof item.previewCredits === "number" && (
               <p className="mt-1 text-xs text-fg-muted">Estimated cost: {item.previewCredits} credits</p>
             )}
@@ -121,7 +113,9 @@ export function StreamItemView({
       // completed (or a confirmed preview that has since produced media)
       return (
         <div className="overflow-hidden rounded-2xl border border-line bg-ink-850">
-          {item.resultUrl && <GenerationMedia url={item.resultUrl} kind={item.resultKind} />}
+          {item.resultUrl && (
+            <GenerationMedia url={item.resultUrl} kind={item.resultKind} aspectRatio={item.aspectRatio} />
+          )}
         </div>
       );
     }

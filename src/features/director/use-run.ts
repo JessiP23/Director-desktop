@@ -12,7 +12,14 @@ export type SendState = "idle" | "sending";
  * `StreamItem`s, and exposes `send` to continue the run. Events are kept unique
  * by id and in arrival order — exactly what `buildStream` expects.
  */
-export function useRun(runId: string | null, onRunPatch?: (id: string, patch: Partial<DirectorRun>) => void) {
+export function useRun(
+  runId: string | null,
+  options: {
+    onRunPatch?: (id: string, patch: Partial<DirectorRun>) => void;
+    onBriefUpdated?: () => void;
+  } = {},
+) {
+  const { onRunPatch, onBriefUpdated } = options;
   const [run, setRun] = React.useState<DirectorRun | null>(null);
   const [events, setEvents] = React.useState<DirectorEvent[]>([]);
   const [sendState, setSendState] = React.useState<SendState>("idle");
@@ -20,6 +27,8 @@ export function useRun(runId: string | null, onRunPatch?: (id: string, patch: Pa
   const seenIds = React.useRef<Set<string>>(new Set());
 
   const appendEvent = React.useCallback((event: DirectorEvent) => {
+    // The brief changed server-side — let the references panel refetch it.
+    if (event.type === "brief.updated") onBriefUpdated?.();
     if (seenIds.current.has(event.id)) {
       // message.delta carries growing text under a stable id near the end of a
       // turn; replace in place so the active bubble keeps updating.
@@ -28,7 +37,7 @@ export function useRun(runId: string | null, onRunPatch?: (id: string, patch: Pa
     }
     seenIds.current.add(event.id);
     setEvents((prev) => [...prev, event]);
-  }, []);
+  }, [onBriefUpdated]);
 
   const handleRunPatch = React.useCallback(
     (id: string, patch: Partial<DirectorRun>) => {
