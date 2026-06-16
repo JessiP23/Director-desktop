@@ -4,6 +4,7 @@ mod secure_store;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_oauth::init())
         .invoke_handler(tauri::generate_handler![
             secure_store::secure_get,
             secure_store::secure_set,

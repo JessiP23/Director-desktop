@@ -1,29 +1,25 @@
 /**
  * Supabase client for the desktop app.
  *
- * The session (incl. refresh token) is persisted in the OS keychain via a
- * custom async storage adapter, not in localStorage — so credentials survive
- * reinstalls and aren't sitting in plaintext web storage. PKCE is used so the
- * OAuth path (system browser → deep link) can be added without a client secret.
+ * Session persistence uses the WebView's localStorage (default). This avoids
+ * the macOS Keychain access prompt during fast iteration — less hardened than
+ * the OS keychain, but the session still survives restarts (Tauri persists the
+ * WebView storage per app). To re-enable keychain storage later, pass a custom
+ * `storage` adapter backed by `lib/tauri/secure-store.ts`.
+ *
+ * PKCE flow so social sign-in (system browser → loopback) works without a
+ * client secret; the code verifier is stored alongside the session.
  */
 import { createClient, type SupabaseClientOptions } from "@supabase/supabase-js";
 import { config } from "@/lib/config";
-import { secureStore } from "@/lib/tauri/secure-store";
-
-const keychainStorage = {
-  getItem: (key: string) => secureStore.get(key),
-  setItem: (key: string, value: string) => secureStore.set(key, value),
-  removeItem: (key: string) => secureStore.delete(key),
-};
 
 const options: SupabaseClientOptions<"public"> = {
   auth: {
-    storage: keychainStorage,
     storageKey: "director.session",
     persistSession: true,
     autoRefreshToken: true,
-    // No URL session detection: desktop has no redirect-in-page; tokens arrive
-    // via email/password now and via deep link (PKCE) later.
+    // Desktop has no in-page redirect; the loopback flow exchanges the code
+    // manually (lib/auth/oauth.ts).
     detectSessionInUrl: false,
     flowType: "pkce",
   },

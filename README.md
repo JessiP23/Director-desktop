@@ -104,6 +104,40 @@ Bearer JWT rides along. Behaviour matches the backend's `event:/data:` frames.
 
 ---
 
+## Authentication
+
+Three ways in, all against the same Supabase project as the web app:
+
+- **Google / Apple** — opens the provider's consent screen in the **system
+  browser**, which redirects to a temporary `http://localhost:<port>` loopback
+  server the app opens for the duration of sign-in (`lib/auth/oauth.ts`, via
+  `tauri-plugin-oauth`). The app reads the `?code=` and exchanges it for a
+  session. No custom URL scheme, so it works the same in `tauri dev` and in a
+  built app — this is the RFC 8252 native-app pattern, and Google/Apple require
+  the system browser (they block embedded webviews).
+- **Email / password** — direct Supabase sign-in.
+
+**Supabase dashboard setup (one-time, Authentication → …):**
+1. URL Configuration → **Redirect URLs**: add all three pinned loopback ports —
+   `http://localhost:8788`, `http://localhost:8789`, `http://localhost:8790`.
+   **If a redirect URL isn't allow-listed, Supabase falls back to the Site URL**
+   (the web app) — that's the "lands on wmstudio, app keeps loading" symptom.
+2. Providers → enable + configure **Google** and **Apple** (Apple also needs an
+   Apple Developer Services ID; the app code is provider-agnostic).
+
+The browser shows a branded "you're signed in, return to Director" page after
+the redirect; the desktop app is already authenticated by then.
+
+> The provider's own console (Google Cloud OAuth client / Apple Services ID)
+> only ever needs the Supabase callback `https://<project>.supabase.co/auth/v1/callback`
+> — **not** the localhost URL. Localhost only goes in Supabase's Redirect URLs.
+
+Run the authenticated smoke test (no GUI):
+
+```bash
+TEST_EMAIL=you@studio.com TEST_PASSWORD=... pnpm smoke
+```
+
 ## Security
 
 - The Supabase **refresh token lives in the OS keychain** (macOS Keychain /
