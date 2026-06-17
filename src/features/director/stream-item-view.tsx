@@ -7,6 +7,38 @@ import { cn } from "@/lib/utils/cn";
 import type { StreamItem } from "@/lib/director/stream";
 import { GenerationMedia } from "./media-view";
 
+/*
+ * The confirm/cancel reply is sent as the user's message and shown in the
+ * transcript, so it must read in the language the model is speaking — not the
+ * old hardcoded Italian "procedi"/"annulla". We detect the language from the
+ * model's own confirmation text and reply in kind. The confirm word stays
+ * within the backend's accepted reply set (proceed/procedi/procede); cancel is
+ * read as natural language by the agent.
+ */
+type Lang = "en" | "it" | "es";
+
+const CONFIRM_REPLY: Record<Lang, string> = { en: "proceed", it: "procedi", es: "procede" };
+const CANCEL_REPLY: Record<Lang, string> = { en: "cancel", it: "annulla", es: "cancelar" };
+const CONFIRM_LABEL: Record<Lang, string> = { en: "Generate", it: "Genera", es: "Generar" };
+const CANCEL_LABEL: Record<Lang, string> = { en: "Cancel", it: "Annulla", es: "Cancelar" };
+const READY_LABEL: Record<Lang, string> = {
+  en: "Ready to generate this?",
+  it: "Procediamo con la generazione?",
+  es: "¿Generamos esto?",
+};
+const COST_LABEL: Record<Lang, (credits: number) => string> = {
+  en: (c) => `Estimated cost: ${c} credits`,
+  it: (c) => `Costo stimato: ${c} crediti`,
+  es: (c) => `Costo estimado: ${c} créditos`,
+};
+
+function detectReplyLang(text: string): Lang {
+  const sample = (text || "").toLowerCase();
+  if (/[¿¡ñ]|[áíóú]|\b(generar|procede|cancelar|imagen|vídeo|confirmas|esto)\b/.test(sample)) return "es";
+  if (/[àèìòù]|\b(genera|procedi|conferma|annulla|immagine|questa|proposta|anteprima)\b/.test(sample)) return "it";
+  return "en";
+}
+
 /** Human-readable label for an internal Director delegation/activity tool. */
 function activityLabel(toolName: string): string {
   const map: Record<string, string> = {
@@ -110,18 +142,19 @@ function StreamItemViewImpl({
       }
 
       if (item.status === "awaiting-confirmation" && !item.confirmed) {
+        const lang = detectReplyLang(item.previewMessage ?? "");
         return (
           <div className="rounded-2xl border border-accent/30 bg-ink-850 p-4">
-            <Markdown>{item.previewMessage ?? "Ready to generate this?"}</Markdown>
+            <Markdown>{item.previewMessage ?? READY_LABEL[lang]}</Markdown>
             {typeof item.previewCredits === "number" && (
-              <p className="mt-1 text-xs text-fg-muted">Estimated cost: {item.previewCredits} credits</p>
+              <p className="mt-1 text-xs text-fg-muted">{COST_LABEL[lang](item.previewCredits)}</p>
             )}
             <div className="mt-3 flex gap-2">
-              <Button size="sm" variant="primary" onClick={() => onSend("procedi")}>
-                Generate
+              <Button size="sm" variant="primary" onClick={() => onSend(CONFIRM_REPLY[lang])}>
+                {CONFIRM_LABEL[lang]}
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => onSend("annulla")}>
-                Cancel
+              <Button size="sm" variant="ghost" onClick={() => onSend(CANCEL_REPLY[lang])}>
+                {CANCEL_LABEL[lang]}
               </Button>
             </div>
           </div>
