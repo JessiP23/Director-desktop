@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import type { StreamItem } from "@/lib/director/stream";
-import { BriefPanel } from "./brief-panel";
+import { AssetsPanel } from "./assets-panel";
 import { Composer } from "./composer";
 import { ConversationView } from "./conversation-view";
 import { RunSidebar } from "./run-sidebar";
@@ -37,7 +37,7 @@ export function DirectorWorkspace() {
     onBriefUpdated,
     initialPendingPrompt: pendingFirstPrompt,
   });
-  const { brief, loading: briefLoading } = useBrief(selectedRunId, briefKey);
+  const { brief } = useBrief(selectedRunId, briefKey);
 
   // Once the run exists, useRun owns the optimistic bubble (seeded from the
   // prompt above); clear the workspace copy so it doesn't double-render.
@@ -128,7 +128,7 @@ export function DirectorWorkspace() {
         )}
       </main>
 
-      {selectedRunId && activePanel && (
+      {selectedRunId && activePanel === "timeline" && (
         <aside className="flex w-80 shrink-0 flex-col bg-surface-1 shadow-[inset_0.5px_0_0_var(--separator)]">
           <div
             data-tauri-drag-region
@@ -137,13 +137,20 @@ export function DirectorWorkspace() {
             {activePanel}
           </div>
           <div className="min-h-0 flex-1">
-            {activePanel === "references" ? (
-              <BriefPanel brief={brief} loading={briefLoading} />
-            ) : (
-              <TimelineView brief={brief} />
-            )}
+            <TimelineView brief={brief} />
           </div>
         </aside>
+      )}
+
+      {/* References open as the React Flow brief canvas (ported from the web),
+          a slide-over overlay rather than the narrow side panel. */}
+      {selectedRunId && (
+        <AssetsPanel
+          runId={selectedRunId}
+          isOpen={activePanel === "references"}
+          onClose={() => setActivePanel(null)}
+          brief={brief}
+        />
       )}
     </div>
   );

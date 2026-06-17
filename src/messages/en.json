@@ -60,6 +60,69 @@
           "Bringing it to life…"
         ]
       }
+    },
+    "references": {
+      "title": "References",
+      "empty": "No references yet",
+      "error": "Failed to load references",
+      "usedAs": "Used as",
+      "unclassified": "Not classified by the agent yet",
+      "categories": {
+        "protagonist": "Protagonist",
+        "villain": "Villain",
+        "product": "Commercial Product",
+        "props": "Props",
+        "environment": "Environment",
+        "other": "Other"
+      },
+      "close": "Close",
+      "tabs": {
+        "assets": "Assets",
+        "brief": "Brief"
+      },
+      "briefError": "Failed to load brief",
+      "brief": {
+        "empty": "Brief exists but no content yet. The agent will populate it as you work.",
+        "logline": "Logline",
+        "creativeBrief": "Creative Brief",
+        "script": "Script",
+        "scriptImages": "Script Images",
+        "deleteFrame": "Delete frame",
+        "confirmDeleteFrame": "Confirm deletion?",
+        "frameDeleteError": "Could not delete the frame. Try again.",
+        "productionPlan": "Production Plan",
+        "characters": "Characters",
+        "locations": "Locations",
+        "props": "Props",
+        "referenceImages": "Reference Images",
+        "linkedAssets": "Linked Assets",
+        "linkedAssetLogo": "Logo",
+        "linkedAssetSource": "Source",
+        "visualLanguage": "Visual Language",
+        "audio": "Audio",
+        "continuity": "Continuity",
+        "decisions": "Decisions",
+        "openQuestions": "Open Questions",
+        "summary": "Summary",
+        "graph": {
+          "title": "Production Brief",
+          "subtitle": "{count} connected sections",
+          "open": "Open section",
+          "back": "Back to brief map",
+          "section": "Brief section",
+          "groups": {
+            "story": "Narrative",
+            "world": "Visual world",
+            "production": "Production",
+            "continuity": "Continuity"
+          }
+        }
+      },
+      "footer": {
+        "assets": "{count, plural, =0 {No assets in memory} one {# asset in memory} other {# assets in memory}}",
+        "briefVersion": "Brief version {version}",
+        "noBrief": "No brief"
+      }
     }
   }
 }

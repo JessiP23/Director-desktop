@@ -60,6 +60,69 @@
           "Rendering in corso…"
         ]
       }
+    },
+    "references": {
+      "title": "Riferimenti",
+      "empty": "Nessun riferimento",
+      "error": "Impossibile caricare i riferimenti",
+      "usedAs": "Usato come",
+      "unclassified": "Non ancora classificato dall'agente",
+      "categories": {
+        "protagonist": "Protagonista",
+        "villain": "Antagonista",
+        "product": "Prodotto commerciale",
+        "props": "Oggetti di scena",
+        "environment": "Ambiente",
+        "other": "Altro"
+      },
+      "close": "Chiudi",
+      "tabs": {
+        "assets": "Asset",
+        "brief": "Brief"
+      },
+      "briefError": "Impossibile caricare il brief",
+      "brief": {
+        "empty": "Il brief esiste ma non ha ancora contenuti. L'agente lo popolerà mentre lavori.",
+        "logline": "Logline",
+        "creativeBrief": "Brief creativo",
+        "script": "Sceneggiatura",
+        "scriptImages": "Immagini della sceneggiatura",
+        "deleteFrame": "Elimina frame",
+        "confirmDeleteFrame": "Confermi eliminazione?",
+        "frameDeleteError": "Impossibile eliminare il frame. Riprova.",
+        "productionPlan": "Piano di produzione",
+        "characters": "Personaggi",
+        "locations": "Location",
+        "props": "Oggetti di scena",
+        "referenceImages": "Immagini di riferimento",
+        "linkedAssets": "Asset collegati",
+        "linkedAssetLogo": "Logo",
+        "linkedAssetSource": "Sorgente",
+        "visualLanguage": "Linguaggio visivo",
+        "audio": "Audio",
+        "continuity": "Continuità",
+        "decisions": "Decisioni",
+        "openQuestions": "Domande aperte",
+        "summary": "Riepilogo",
+        "graph": {
+          "title": "Brief di produzione",
+          "subtitle": "{count} sezioni collegate",
+          "open": "Apri sezione",
+          "back": "Torna alla mappa del brief",
+          "section": "Sezione del brief",
+          "groups": {
+            "story": "Narrazione",
+            "world": "Mondo visivo",
+            "production": "Produzione",
+            "continuity": "Continuità"
+          }
+        }
+      },
+      "footer": {
+        "assets": "{count, plural, =0 {Nessun asset in memoria} one {# asset in memoria} other {# asset in memoria}}",
+        "briefVersion": "Brief versione {version}",
+        "noBrief": "Nessun brief"
+      }
     }
   }
 }

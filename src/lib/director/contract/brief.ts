@@ -17,6 +17,14 @@ export type DirectorScriptClip = {
   prompt?: string;
 };
 
+/** An image imported from a user-shared link, approved as reusable reference. */
+export type DirectorLinkedAsset = {
+  url: string;
+  name: string;
+  sourceUrl: string;
+  isLogo?: boolean;
+};
+
 export type DirectorBriefSections = {
   logline?: string;
   creativeBrief?: string;
@@ -29,6 +37,8 @@ export type DirectorBriefSections = {
   props?: Record<string, string>;
   /** Entity name → "<kind>: <url>" casting-sheet reference. */
   referenceImages?: Record<string, string>;
+  /** Images imported from user-shared links, approved as reusable references. */
+  linkedAssets?: DirectorLinkedAsset[];
   visualLanguage?: string;
   audio?: string;
   continuity?: string;

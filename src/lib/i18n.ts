@@ -31,3 +31,45 @@ export function detectLocale(text: string): Locale {
   if (IT_MARKERS.test(sample)) return "it";
   return "en";
 }
+
+/**
+ * App-UI locale — follows the OS language (en/it/es), default English. Drives
+ * static chrome ported from the web (the references canvas, etc.). Chat content
+ * still adapts to the model via `detectLocale`.
+ */
+export function appLocale(): Locale {
+  const lang = (typeof navigator !== "undefined" ? navigator.language : "en").toLowerCase();
+  if (lang.startsWith("it")) return "it";
+  if (lang.startsWith("es")) return "es";
+  return "en";
+}
+
+function lookup(locale: Locale, path: string): string {
+  let node: unknown = BUNDLES[locale];
+  for (const part of path.split(".")) {
+    if (node && typeof node === "object" && part in (node as Record<string, unknown>)) {
+      node = (node as Record<string, unknown>)[part];
+    } else {
+      return path;
+    }
+  }
+  return typeof node === "string" ? node : path;
+}
+
+/**
+ * Drop-in shim for next-intl's `useTranslations(namespace)` over the copied
+ * message bundles, so web components that call `t("brief.graph.back")` port with
+ * no changes to their translation calls. Supports `{var}` interpolation.
+ */
+export function useTranslations(namespace: string) {
+  const locale = appLocale();
+  return (key: string, vars?: Record<string, string | number>) => {
+    let str = lookup(locale, `${namespace}.${key}`);
+    if (vars) {
+      for (const [name, value] of Object.entries(vars)) {
+        str = str.replace(new RegExp(`\\{${name}\\}`, "g"), String(value));
+      }
+    }
+    return str;
+  };
+}
