@@ -83,12 +83,15 @@ export function DirectorWorkspace() {
         onNew={() => setSelectedRunId(null)}
       />
 
-      <main className="flex min-w-0 flex-1 flex-col">
+      <main className="flex min-w-0 flex-1 flex-col bg-surface-0">
         {inConversation ? (
           <>
-            <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-line px-4">
-              <span className="min-w-0 truncate text-sm font-medium text-fg">{run?.title ?? "Production"}</span>
-              <div className="flex shrink-0 gap-1">
+            <div
+              data-tauri-drag-region
+              className="flex h-12 shrink-0 items-center justify-between gap-2 bg-material-toolbar px-4 shadow-[inset_0_-0.5px_0_var(--separator)]"
+            >
+              <span className="min-w-0 truncate text-sm font-medium text-text">{run?.title ?? "Production"}</span>
+              <div className="no-drag flex shrink-0 gap-1">
                 <Button
                   size="sm"
                   variant={activePanel === "references" ? "secondary" : "ghost"}
@@ -126,8 +129,11 @@ export function DirectorWorkspace() {
       </main>
 
       {selectedRunId && activePanel && (
-        <aside className="flex w-80 shrink-0 flex-col border-l border-line bg-ink-900/40">
-          <div className="flex h-12 shrink-0 items-center border-b border-line px-4 font-mono text-[11px] uppercase tracking-[0.14em] text-fg-muted">
+        <aside className="flex w-80 shrink-0 flex-col bg-surface-1 shadow-[inset_0.5px_0_0_var(--separator)]">
+          <div
+            data-tauri-drag-region
+            className="flex h-12 shrink-0 items-center px-4 text-xs font-medium capitalize text-text-secondary shadow-[inset_0_-0.5px_0_var(--separator)]"
+          >
             {activePanel}
           </div>
           <div className="min-h-0 flex-1">

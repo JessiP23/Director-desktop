@@ -27,7 +27,7 @@ export function RunSidebar({
   onNew: () => void;
 }) {
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r border-line bg-ink-900/40">
+    <aside className="material flex w-64 shrink-0 flex-col bg-material-sidebar shadow-[inset_-0.5px_0_0_var(--separator)]">
       <div className="px-3 pb-3 pt-3">
         <Button variant="secondary" size="sm" className="w-full justify-center" onClick={onNew}>
           + New production

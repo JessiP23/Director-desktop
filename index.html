@@ -1,10 +1,30 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/wm.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Director</title>
+    <!-- Pre-paint appearance guard: set the root class before first paint so
+         there is no flash-of-wrong-theme. Mirrors src/lib/appearance. -->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var saved = localStorage.getItem("director-appearance");
+          root.classList.remove("light", "dark");
+          if (saved === "light") root.classList.add("light");
+          else if (saved === "dark") root.classList.add("dark");
+          // "auto" / unset → no class; CSS prefers-color-scheme drives it.
+        } catch (e) {}
+        // Platform class drives macOS-only transparency (vibrancy shows through).
+        try {
+          var ua = navigator.userAgent;
+          if (/Mac OS X|Macintosh/.test(ua)) root.classList.add("platform-macos");
+          else if (/Windows/.test(ua)) root.classList.add("platform-windows");
+        } catch (e) {}
+      })();
+    </script>
   </head>
 
   <body>

@@ -45,7 +45,6 @@ export function SignInScreen() {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="drag-region h-11 shrink-0" />
       <div className="flex flex-1 items-center justify-center px-6">
         <div className="w-full max-w-sm rounded-2xl border border-line bg-ink-900/80 p-8 shadow-2xl backdrop-blur">
           <div className="mb-7 text-center">

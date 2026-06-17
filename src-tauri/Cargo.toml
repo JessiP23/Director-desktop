@@ -18,7 +18,10 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
+# `macos-private-api` backs the transparent window enabled by
+# `macOSPrivateApi: true` in tauri.macos.conf.json. It is internally gated to
+# macOS, so it's a no-op in the Windows/Linux builds.
+tauri = { version = "2", features = ["macos-private-api"] }
 tauri-plugin-opener = "2"
 # Loopback OAuth: spins up a temporary http://localhost:<port> server to catch
 # the Google/Apple redirect from the system browser. Works in dev and prod with
@@ -29,3 +32,6 @@ serde_json = "1"
 # OS-native secret storage: macOS Keychain + Windows Credential Manager.
 # keyring 3.x makes the platform stores opt-in via features.
 keyring = { version = "3", features = ["apple-native", "windows-native"] }
+# Real window vibrancy (NSVisualEffect on macOS). Applied behind the webview
+# in lib.rs, guarded to macOS — a no-op on Windows/Linux.
+window-vibrancy = "0.6"

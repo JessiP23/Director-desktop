@@ -1,99 +1,175 @@
 @import "tailwindcss";
 
-/*
- * Director Desktop — design system.
- *
- * A calm, cinematic dark surface. One warm accent ("film amber") on deep ink.
- * Tokens are defined once here as Tailwind v4 `@theme` variables so every
- * component composes from the same palette/scale instead of ad-hoc hex values.
- */
-@theme {
-  /* ── Surfaces (deep ink → raised panels) ─────────────────────────── */
-  --color-ink-950: #08080b;
-  --color-ink-900: #0d0d12;
-  --color-ink-850: #121218;
-  --color-ink-800: #17171f;
-  --color-ink-700: #20202a;
-  --color-ink-600: #2b2b38;
+/* ───────────────────────────────────────────────────────────────────
+ *  Director Desktop — design tokens (Phase A, approved)
+ *  macOS-native chassis, WM Studio film-amber accent. Light + dark are
+ *  designed independently (dark gets MORE separation, never inverted).
+ *  `@theme inline` binds Tailwind utilities to the runtime vars below so
+ *  appearance flips live. Appearance is driven by the root class:
+ *    (no class) = auto → follows prefers-color-scheme
+ *    .light / .dark = forced
+ * ─────────────────────────────────────────────────────────────────── */
 
-  /* ── Text ────────────────────────────────────────────────────────── */
-  --color-fg: #ececf1;
-  --color-fg-muted: #a0a0ad;
-  --color-fg-subtle: #6c6c7a;
-
-  /* ── Borders / hairlines ─────────────────────────────────────────── */
-  --color-line: #23232e;
-  --color-line-strong: #313140;
-
-  /* ── Accent: film amber ──────────────────────────────────────────── */
-  --color-accent: #e6b15a;
-  --color-accent-hover: #f0c172;
-  --color-accent-ink: #2a1d05;
-
-  /* ── Semantic ────────────────────────────────────────────────────── */
-  --color-success: #5fcf8e;
-  --color-danger: #f0666b;
-
-  /* ── Type ────────────────────────────────────────────────────────── */
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
-
-  /* ── Radius ──────────────────────────────────────────────────────── */
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
+/* 1 ── Appearance values ───────────────────────────────────────────── */
+:root,
+:root.light {
+  color-scheme: light;
+  --surface-0: #ffffff;  --surface-1: #f5f5f7;  --surface-2: #ececee;
+  --surface-3: #e3e3e6;  --surface-4: #d8d8dc;
+  --text: #1d1d1f;       --text-secondary: #6e6e73;
+  --text-tertiary: #8e8e93; --text-quaternary: #aeaeb2;
+  --separator: rgba(0,0,0,.10);   --border-color: rgba(0,0,0,.14);
+  --fill: rgba(120,120,128,.12);  --fill-secondary: rgba(120,120,128,.08);
+  --accent: #e6b15a; --accent-hover: #efc074; --accent-pressed: #d49e45;
+  --accent-fg: #2a1d05; --accent-text: #9c6f25; --accent-muted: rgba(230,177,90,.16);
+  --success: #1e9e55; --warning: #b7791f; --danger: #d63a3f;
+  --material-sidebar: rgba(246,246,248,.72);
+  --material-toolbar: rgba(255,255,255,.72);
+  --material-popover: rgba(255,255,255,.80);
+  --shadow-hairline: 0 0 0 .5px rgba(0,0,0,.12);
+  --shadow-1: 0 1px 2px rgba(0,0,0,.06), 0 1px 1px rgba(0,0,0,.04);
+  --shadow-2: 0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08);
+  --shadow-pop: 0 0 0 .5px rgba(0,0,0,.10), 0 8px 28px rgba(0,0,0,.18);
 }
 
-html,
-body,
-#root {
-  height: 100%;
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+    --surface-0: #1c1c1e; --surface-1: #2c2c2e; --surface-2: #3a3a3c;
+    --surface-3: #48484a; --surface-4: #545456;
+    --text: #f5f5f7; --text-secondary: #aeaeb2;
+    --text-tertiary: #8e8e93; --text-quaternary: #636366;
+    --separator: rgba(255,255,255,.12); --border-color: rgba(255,255,255,.16);
+    --fill: rgba(120,120,128,.24); --fill-secondary: rgba(120,120,128,.16);
+    --accent-text: #e6b15a; --accent-muted: rgba(230,177,90,.22);
+    --success: #5fcf8e; --warning: #e0a93b; --danger: #f0666b;
+    --material-sidebar: rgba(30,30,32,.62);
+    --material-toolbar: rgba(28,28,30,.70);
+    --material-popover: rgba(40,40,42,.80);
+    --shadow-hairline: 0 0 0 .5px rgba(255,255,255,.10);
+    --shadow-1: 0 1px 2px rgba(0,0,0,.24);
+    --shadow-2: 0 2px 8px rgba(0,0,0,.32), 0 12px 32px rgba(0,0,0,.36);
+    --shadow-pop: 0 0 0 .5px rgba(255,255,255,.08), 0 12px 32px rgba(0,0,0,.48);
+  }
 }
 
+:root.dark {
+  color-scheme: dark;
+  --surface-0: #1c1c1e; --surface-1: #2c2c2e; --surface-2: #3a3a3c;
+  --surface-3: #48484a; --surface-4: #545456;
+  --text: #f5f5f7; --text-secondary: #aeaeb2;
+  --text-tertiary: #8e8e93; --text-quaternary: #636366;
+  --separator: rgba(255,255,255,.12); --border-color: rgba(255,255,255,.16);
+  --fill: rgba(120,120,128,.24); --fill-secondary: rgba(120,120,128,.16);
+  --accent-text: #e6b15a; --accent-muted: rgba(230,177,90,.22);
+  --success: #5fcf8e; --warning: #e0a93b; --danger: #f0666b;
+  --material-sidebar: rgba(30,30,32,.62);
+  --material-toolbar: rgba(28,28,30,.70);
+  --material-popover: rgba(40,40,42,.80);
+  --shadow-hairline: 0 0 0 .5px rgba(255,255,255,.10);
+  --shadow-1: 0 1px 2px rgba(0,0,0,.24);
+  --shadow-2: 0 2px 8px rgba(0,0,0,.32), 0 12px 32px rgba(0,0,0,.36);
+  --shadow-pop: 0 0 0 .5px rgba(255,255,255,.08), 0 12px 32px rgba(0,0,0,.48);
+}
+
+/* 2 ── Bind tokens to Tailwind utilities (inline = live var refs) ──── */
+@theme inline {
+  /* semantic colors */
+  --color-surface-0: var(--surface-0);  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);  --color-surface-3: var(--surface-3);
+  --color-surface-4: var(--surface-4);
+  --color-text: var(--text);            --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary); --color-text-quaternary: var(--text-quaternary);
+  --color-separator: var(--separator);  --color-border: var(--border-color);
+  --color-fill: var(--fill);            --color-fill-secondary: var(--fill-secondary);
+  --color-accent: var(--accent);        --color-accent-hover: var(--accent-hover);
+  --color-accent-pressed: var(--accent-pressed); --color-accent-fg: var(--accent-fg);
+  --color-accent-text: var(--accent-text); --color-accent-muted: var(--accent-muted);
+  --color-success: var(--success); --color-warning: var(--warning); --color-danger: var(--danger);
+  --color-material-sidebar: var(--material-sidebar);
+  --color-material-toolbar: var(--material-toolbar);
+  --color-material-popover: var(--material-popover);
+
+  /* backward-compat aliases — keep existing screens rendering until
+     they migrate to semantic names in Phase 5. Mapped to preserve the
+     old ramp's relative layering (darkest base → raised panels). */
+  --color-ink-950: var(--surface-0); --color-ink-900: var(--surface-1);
+  --color-ink-850: var(--surface-1); --color-ink-800: var(--surface-2);
+  --color-ink-700: var(--surface-3); --color-ink-600: var(--surface-4);
+  --color-fg: var(--text); --color-fg-muted: var(--text-secondary); --color-fg-subtle: var(--text-tertiary);
+  --color-line: var(--separator); --color-line-strong: var(--border-color);
+  --color-accent-ink: var(--accent-fg);
+
+  /* type — SF system stack, Mac density */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", monospace;
+  --text-xs: .6875rem;  --text-xs--line-height: 1.45;
+  --text-sm: .8125rem;  --text-sm--line-height: 1.45;   /* 13px body */
+  --text-base: .9375rem; --text-base--line-height: 1.4;
+  --text-lg: 1.0625rem; --text-lg--line-height: 1.35;
+  --text-xl: 1.1875rem; --text-2xl: 1.375rem;
+  --text-3xl: 1.75rem;  --text-4xl: 2.125rem; --text-4xl--line-height: 1.05;
+
+  /* radius — Mac convention */
+  --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 10px; --radius-2xl: 12px; --radius-3xl: 16px;
+
+  /* elevation */
+  --shadow-sm: var(--shadow-1); --shadow-md: var(--shadow-2);
+  --shadow-lg: var(--shadow-2); --shadow-xl: var(--shadow-pop); --shadow-2xl: var(--shadow-pop);
+
+  /* motion */
+  --ease-out: cubic-bezier(.25,.46,.45,.94);
+  --ease-in-out: cubic-bezier(.4,0,.2,1);
+  --default-transition-timing-function: cubic-bezier(.25,.46,.45,.94);
+  --default-transition-duration: 150ms;
+  --duration-fast: 150ms; --duration-normal: 250ms; --duration-slow: 350ms;
+}
+
+/* 3 ── Base + native niceties ──────────────────────────────────────── */
+html, body, #root { height: 100%; }
 body {
   margin: 0;
-  background-color: var(--color-ink-950);
-  color: var(--color-fg);
+  background: var(--surface-0);
+  color: var(--text);
   font-family: var(--font-sans);
+  font-size: .8125rem;          /* 13px Mac body */
   font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* Disable the native rubber-band/overscroll for a more app-like feel. */
   overscroll-behavior: none;
 }
 
-/* Native window: regions the user can grab to drag the frameless window. */
-.drag-region {
-  -webkit-app-region: drag;
-}
-.no-drag {
-  -webkit-app-region: no-drag;
-}
+/* On macOS the window is transparent and a real NSVisualEffect sits behind the
+ * webview (lib.rs), so the body must be transparent for the chrome's material
+ * regions to reveal it. Windows/Linux/browser keep the opaque body above. */
+.platform-macos body { background: transparent; }
 
-/* Don't let text selection / native context get in the way of the app shell. */
-.select-none {
-  -webkit-user-select: none;
-  user-select: none;
-}
+.drag-region { -webkit-app-region: drag; }
+.no-drag { -webkit-app-region: no-drag; }
+.select-none { -webkit-user-select: none; user-select: none; }
 
-/* Slim, unobtrusive scrollbars that match the dark surface. */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-ink-600) transparent;
-}
-*::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
+/* vibrancy material helper (CSS fallback; real NSVisualEffect in Phase 2) */
+.material { backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
+
+/* slim scrollbars tied to the surface ramp */
+* { scrollbar-width: thin; scrollbar-color: var(--surface-3) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-thumb {
-  background-color: var(--color-ink-600);
-  border-radius: 9999px;
-  border: 3px solid transparent;
-  background-clip: content-box;
+  background-color: var(--surface-3); border-radius: 9999px;
+  border: 3px solid transparent; background-clip: content-box;
 }
-*::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-line-strong);
-}
+*::-webkit-scrollbar-thumb:hover { background-color: var(--surface-4); }
+::selection { background: var(--accent-muted); }
 
-::selection {
-  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+/* 4 ── Accessibility: honor system reduce settings ─────────────────── */
+@media (prefers-reduced-transparency: reduce) {
+  :root, :root.light { --material-sidebar: var(--surface-1); --material-toolbar: var(--surface-1); --material-popover: var(--surface-0); }
+  :root.dark, :root:not(.light) { --material-sidebar: var(--surface-1); --material-toolbar: var(--surface-1); --material-popover: var(--surface-2); }
+  .material { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important; scroll-behavior: auto !important;
+  }
 }
