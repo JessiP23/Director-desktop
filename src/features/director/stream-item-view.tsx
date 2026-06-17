@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Brand } from "@/components/ui/brand";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/ui/markdown";
@@ -19,7 +20,32 @@ function activityLabel(toolName: string): string {
   return map[toolName] ?? toolName.replace(/_/g, " ");
 }
 
-export function StreamItemView({
+/**
+ * `buildStream` returns fresh item objects on every render, so a naive map
+ * would re-render every bubble (and re-parse every Markdown block) on each
+ * streamed token. Compare items by value instead: only the row whose content
+ * actually changed — typically the single bubble currently receiving deltas —
+ * re-renders. Nested objects (a generation's `args`/url arrays) get new
+ * references each build, so those rows still re-render, but there are few of
+ * them and they don't carry the hot streaming path.
+ */
+function itemsEqual(a: StreamItem, b: StreamItem): boolean {
+  if (a === b) return true;
+  if (a.kind !== b.kind || a.id !== b.id) return false;
+  const ka = Object.keys(a) as (keyof StreamItem)[];
+  const kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  for (const key of ka) {
+    if ((a as Record<string, unknown>)[key] !== (b as Record<string, unknown>)[key]) return false;
+  }
+  return true;
+}
+
+export const StreamItemView = React.memo(StreamItemViewImpl, (prev, next) =>
+  prev.onSend === next.onSend && itemsEqual(prev.item, next.item),
+);
+
+function StreamItemViewImpl({
   item,
   onSend,
 }: {

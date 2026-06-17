@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
+import type { StreamItem } from "@/lib/director/stream";
 import { BriefPanel } from "./brief-panel";
 import { Composer } from "./composer";
 import { ConversationView } from "./conversation-view";
@@ -20,6 +21,9 @@ export function DirectorWorkspace() {
   const { runs, loading, error: runsError, createRun, patchRun } = useRuns();
   const [selectedRunId, setSelectedRunId] = React.useState<string | null>(null);
   const [creating, setCreating] = React.useState(false);
+  // The first prompt of a new production, shown optimistically while the run is
+  // being created (before its id — and therefore its stream — exists).
+  const [pendingFirstPrompt, setPendingFirstPrompt] = React.useState<string | null>(null);
   const [activePanel, setActivePanel] = React.useState<SidePanel | null>(null);
   const [briefKey, setBriefKey] = React.useState(0);
 
@@ -31,18 +35,40 @@ export function DirectorWorkspace() {
   const { items, send, sendState, isRunning, run, error } = useRun(selectedRunId, {
     onRunPatch: patchRun,
     onBriefUpdated,
+    initialPendingPrompt: pendingFirstPrompt,
   });
   const { brief, loading: briefLoading } = useBrief(selectedRunId, briefKey);
 
+  // Once the run exists, useRun owns the optimistic bubble (seeded from the
+  // prompt above); clear the workspace copy so it doesn't double-render.
+  React.useEffect(() => {
+    if (selectedRunId) setPendingFirstPrompt(null);
+  }, [selectedRunId]);
+
   async function startNewProduction(prompt: string) {
+    // Show the prompt instantly — don't wait on the create round-trip.
+    setPendingFirstPrompt(prompt);
     setCreating(true);
     try {
       const created = await createRun({ prompt });
       setSelectedRunId(created.id);
+    } catch (err) {
+      setPendingFirstPrompt(null);
+      throw err;
     } finally {
       setCreating(false);
     }
   }
+
+  // While a brand-new run is still being created we have no run id (and no
+  // stream) yet — render the prompt the user just sent so the screen reacts
+  // immediately instead of sitting on the empty state.
+  const inConversation = Boolean(selectedRunId || pendingFirstPrompt);
+  const conversationItems: StreamItem[] = selectedRunId
+    ? items
+    : pendingFirstPrompt
+      ? [{ kind: "user", id: "__pending_first__", text: pendingFirstPrompt, timestamp: new Date().toISOString() }]
+      : [];
 
   const composerDisabled = isRunning || sendState === "sending" || creating;
 
@@ -58,7 +84,7 @@ export function DirectorWorkspace() {
       />
 
       <main className="flex min-w-0 flex-1 flex-col">
-        {selectedRunId ? (
+        {inConversation ? (
           <>
             <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-line px-4">
               <span className="min-w-0 truncate text-sm font-medium text-fg">{run?.title ?? "Production"}</span>
@@ -67,6 +93,7 @@ export function DirectorWorkspace() {
                   size="sm"
                   variant={activePanel === "references" ? "secondary" : "ghost"}
                   onClick={() => togglePanel("references")}
+                  disabled={!selectedRunId}
                 >
                   References
                 </Button>
@@ -74,6 +101,7 @@ export function DirectorWorkspace() {
                   size="sm"
                   variant={activePanel === "timeline" ? "secondary" : "ghost"}
                   onClick={() => togglePanel("timeline")}
+                  disabled={!selectedRunId}
                 >
                   Timeline
                 </Button>
@@ -82,12 +110,14 @@ export function DirectorWorkspace() {
             {error && (
               <div className="bg-danger/10 px-4 py-2 text-center text-xs text-danger">{error}</div>
             )}
-            <ConversationView items={items} onSend={send} />
+            <ConversationView items={conversationItems} onSend={send} />
             <Composer
               onSend={send}
               disabled={composerDisabled}
-              busy={isRunning || sendState === "sending"}
-              placeholder={isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`}
+              busy={isRunning || sendState === "sending" || creating}
+              placeholder={
+                creating || isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`
+              }
             />
           </>
         ) : (

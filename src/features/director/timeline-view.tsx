@@ -11,7 +11,7 @@ import { GenerationMedia } from "./media-view";
  */
 export function TimelineView({ brief }: { brief: DirectorBrief | null }) {
   const clips = React.useMemo(() => {
-    const list = brief?.sections.scriptClips ?? [];
+    const list = brief?.sections?.scriptClips ?? [];
     return [...list].sort((a, b) => compareScriptReference(a.scriptReference, b.scriptReference));
   }, [brief]);
 

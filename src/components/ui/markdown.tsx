@@ -1,3 +1,4 @@
+import * as React from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils/cn";
@@ -42,12 +43,25 @@ const components: Components = {
   td: ({ children }) => <td className="border border-line px-2 py-1">{children}</td>,
 };
 
-export function Markdown({ children, className }: { children: string; className?: string }) {
+const remarkPlugins = [remarkGfm];
+
+/**
+ * Memoized: parsing Markdown to an AST is the most expensive step on the
+ * streaming path, so we only re-run it when the text (or class) actually
+ * changes — not every time a sibling bubble updates.
+ */
+export const Markdown = React.memo(function Markdown({
+  children,
+  className,
+}: {
+  children: string;
+  className?: string;
+}) {
   return (
     <div className={cn("text-sm text-fg [&>*:first-child]:mt-0 [&>*:last-child]:mb-0", className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+      <ReactMarkdown remarkPlugins={remarkPlugins} components={components}>
         {children}
       </ReactMarkdown>
     </div>
   );
-}
+});

@@ -60,10 +60,12 @@ export const directorApi = {
 
   deleteRun: (runId: string) => apiClient.delete<unknown>(`${RUNS}/${runId}`),
 
-  getBrief: (runId: string) => apiClient.get<DirectorBrief>(`/api/director/${runId}/brief`),
+  // The brief routes wrap the payload as `{ brief }`.
+  getBrief: (runId: string) =>
+    apiClient.get<{ brief: DirectorBrief }>(`/api/director/${runId}/brief`).then((r) => r.brief),
 
   patchBrief: (runId: string, patch: DirectorBriefPatchPayload) =>
-    apiClient.patch<DirectorBrief>(`/api/director/${runId}/brief`, patch),
+    apiClient.patch<{ brief: DirectorBrief }>(`/api/director/${runId}/brief`, patch).then((r) => r.brief),
 
   /** Authorized SSE URL + headers for a run's event stream. */
   streamRequest: (runId: string, followLatestTurn = false) =>

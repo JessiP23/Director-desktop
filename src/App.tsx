@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/layout/app-shell";
+import { ErrorBoundary } from "@/components/error-boundary";
 import { Spinner } from "@/components/ui/spinner";
 import { AuthProvider } from "@/features/auth/auth-provider";
 import { useAuth } from "@/features/auth/auth-context";
@@ -22,7 +23,9 @@ function Gate() {
 
   return (
     <AppShell>
-      <DirectorWorkspace />
+      <ErrorBoundary>
+        <DirectorWorkspace />
+      </ErrorBoundary>
     </AppShell>
   );
 }
