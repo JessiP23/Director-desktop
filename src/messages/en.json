@@ -1,0 +1,65 @@
+{
+  "director": {
+    "conversation": {
+      "confirmation": {
+        "imageQuestion": "Proceed with image generation?",
+        "videoQuestion": "Proceed with video generation?",
+        "defaultQuestion": "Proceed?",
+        "credits": "{count} credits",
+        "confirm": "Proceed",
+        "confirmBusy": "Sending…",
+        "cancel": "Cancel",
+        "cancelBusy": "Cancelling…",
+        "answered": "Answered",
+        "ready": "Your generation is ready: review the preview and reply \"proceed\" to start it, or tell me what you'd like to change.",
+        "castingReady": "Confirm this proposal? Once confirmed, it will be saved to the production brief."
+      },
+      "activity": {
+        "task": "Task",
+        "delegate_media_generation": {
+          "running": "Producing media…",
+          "failed": "Media production step failed"
+        },
+        "delegate_screenwriter": {
+          "running": "Writing story and production brief…",
+          "failed": "Screenwriting step failed"
+        },
+        "delegate_research": {
+          "running": "Researching sources…",
+          "failed": "Research failed"
+        },
+        "delegate_caster": {
+          "running": "Developing characters, locations and props…",
+          "failed": "Casting step failed"
+        },
+        "delegate_editor": {
+          "running": "Editing the timeline…",
+          "failed": "Timeline edit failed"
+        },
+        "write_todos": {
+          "running": "Updating the production plan…",
+          "failed": "Production plan update failed"
+        }
+      },
+      "status": {
+        "thinking": [
+          "Director is thinking…",
+          "Director is reasoning…",
+          "Working through it…",
+          "Connecting the dots…"
+        ],
+        "writing": [
+          "Director is typing…",
+          "Composing a reply…",
+          "Putting it into words…"
+        ],
+        "generating": [
+          "Director is generating…",
+          "Rendering your media…",
+          "Creating the assets…",
+          "Bringing it to life…"
+        ]
+      }
+    }
+  }
+}

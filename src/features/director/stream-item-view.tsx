@@ -7,49 +7,20 @@ import { cn } from "@/lib/utils/cn";
 import type { StreamItem } from "@/lib/director/stream";
 import { GenerationMedia } from "./media-view";
 
-/*
- * The confirm/cancel reply is sent as the user's message and shown in the
- * transcript, so it must read in the language the model is speaking — not the
- * old hardcoded Italian "procedi"/"annulla". We detect the language from the
- * model's own confirmation text and reply in kind. The confirm word stays
- * within the backend's accepted reply set (proceed/procedi/procede); cancel is
- * read as natural language by the agent.
+import { conversationMessages, type Locale } from "@/lib/i18n";
+
+/**
+ * Localized label for an internal Director delegation/activity tool, reusing
+ * wmstudio's `director.conversation.activity` strings (copied into the desktop).
  */
-type Lang = "en" | "it" | "es";
-
-const CONFIRM_REPLY: Record<Lang, string> = { en: "proceed", it: "procedi", es: "procede" };
-const CANCEL_REPLY: Record<Lang, string> = { en: "cancel", it: "annulla", es: "cancelar" };
-const CONFIRM_LABEL: Record<Lang, string> = { en: "Generate", it: "Genera", es: "Generar" };
-const CANCEL_LABEL: Record<Lang, string> = { en: "Cancel", it: "Annulla", es: "Cancelar" };
-const READY_LABEL: Record<Lang, string> = {
-  en: "Ready to generate this?",
-  it: "Procediamo con la generazione?",
-  es: "¿Generamos esto?",
-};
-const COST_LABEL: Record<Lang, (credits: number) => string> = {
-  en: (c) => `Estimated cost: ${c} credits`,
-  it: (c) => `Costo stimato: ${c} crediti`,
-  es: (c) => `Costo estimado: ${c} créditos`,
-};
-
-function detectReplyLang(text: string): Lang {
-  const sample = (text || "").toLowerCase();
-  if (/[¿¡ñ]|[áíóú]|\b(generar|procede|cancelar|imagen|vídeo|confirmas|esto)\b/.test(sample)) return "es";
-  if (/[àèìòù]|\b(genera|procedi|conferma|annulla|immagine|questa|proposta|anteprima)\b/.test(sample)) return "it";
-  return "en";
-}
-
-/** Human-readable label for an internal Director delegation/activity tool. */
-function activityLabel(toolName: string): string {
-  const map: Record<string, string> = {
-    delegate_media_generation: "Generating media",
-    delegate_screenwriter: "Writing the script",
-    delegate_research: "Researching",
-    delegate_caster: "Developing characters",
-    delegate_editor: "Editing the timeline",
-    write_todos: "Planning",
-  };
-  return map[toolName] ?? toolName.replace(/_/g, " ");
+function activityLabel(toolName: string, locale: Locale): string {
+  const activity = conversationMessages(locale).activity as Record<
+    string,
+    { running?: string } | string
+  >;
+  const entry = activity[toolName];
+  if (entry && typeof entry === "object" && entry.running) return entry.running;
+  return toolName.replace(/_/g, " ");
 }
 
 /**
@@ -74,15 +45,17 @@ function itemsEqual(a: StreamItem, b: StreamItem): boolean {
 }
 
 export const StreamItemView = React.memo(StreamItemViewImpl, (prev, next) =>
-  prev.onSend === next.onSend && itemsEqual(prev.item, next.item),
+  prev.onSend === next.onSend && prev.locale === next.locale && itemsEqual(prev.item, next.item),
 );
 
 function StreamItemViewImpl({
   item,
   onSend,
+  locale,
 }: {
   item: StreamItem;
   onSend: (text: string) => void;
+  locale: Locale;
 }) {
   switch (item.kind) {
     case "user":
@@ -125,7 +98,7 @@ function StreamItemViewImpl({
             <span className={cn("size-1.5 rounded-full", item.status === "failed" ? "bg-danger" : "bg-fg-subtle")} />
           )}
           <span>
-            {activityLabel(item.toolName)}
+            {activityLabel(item.toolName, locale)}
             {item.status === "failed" && item.errorMessage ? ` — ${item.errorMessage}` : "…"}
           </span>
         </div>
@@ -142,19 +115,21 @@ function StreamItemViewImpl({
       }
 
       if (item.status === "awaiting-confirmation" && !item.confirmed) {
-        const lang = detectReplyLang(item.previewMessage ?? "");
+        const c = conversationMessages(locale).confirmation;
         return (
           <div className="rounded-2xl border border-accent/30 bg-ink-850 p-4">
-            <Markdown>{item.previewMessage ?? READY_LABEL[lang]}</Markdown>
+            <Markdown>{item.previewMessage ?? c.defaultQuestion}</Markdown>
             {typeof item.previewCredits === "number" && (
-              <p className="mt-1 text-xs text-fg-muted">{COST_LABEL[lang](item.previewCredits)}</p>
+              <p className="mt-1 text-xs text-fg-muted">
+                {c.credits.replace("{count}", String(item.previewCredits))}
+              </p>
             )}
             <div className="mt-3 flex gap-2">
-              <Button size="sm" variant="primary" onClick={() => onSend(CONFIRM_REPLY[lang])}>
-                {CONFIRM_LABEL[lang]}
+              <Button size="sm" variant="primary" onClick={() => onSend(c.confirm.toLowerCase())}>
+                {c.confirm}
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => onSend(CANCEL_REPLY[lang])}>
-                {CANCEL_LABEL[lang]}
+              <Button size="sm" variant="ghost" onClick={() => onSend(c.cancel.toLowerCase())}>
+                {c.cancel}
               </Button>
             </div>
           </div>

@@ -1,0 +1,65 @@
+{
+  "director": {
+    "conversation": {
+      "confirmation": {
+        "imageQuestion": "Vuoi procedere con la generazione dell'immagine?",
+        "videoQuestion": "Vuoi procedere con la generazione del video?",
+        "defaultQuestion": "Vuoi procedere?",
+        "credits": "{count} crediti",
+        "confirm": "Procedi",
+        "confirmBusy": "Invio…",
+        "cancel": "Annulla",
+        "cancelBusy": "Annullo…",
+        "answered": "Risposto",
+        "ready": "La generazione è pronta: controlla l'anteprima e rispondi \"procedi\" per avviarla, oppure dimmi cosa vuoi modificare.",
+        "castingReady": "Confermi questa proposta? Dopo la conferma verrà salvata nel brief di produzione."
+      },
+      "activity": {
+        "task": "Attività",
+        "delegate_media_generation": {
+          "running": "Produzione media in corso…",
+          "failed": "Passaggio di produzione media non riuscito"
+        },
+        "delegate_screenwriter": {
+          "running": "Sto scrivendo storia e brief di produzione…",
+          "failed": "Passaggio di sceneggiatura non riuscito"
+        },
+        "delegate_research": {
+          "running": "Ricerca delle fonti in corso…",
+          "failed": "Ricerca non riuscita"
+        },
+        "delegate_caster": {
+          "running": "Sto sviluppando personaggi, location e oggetti di scena…",
+          "failed": "Passaggio di casting non riuscito"
+        },
+        "delegate_editor": {
+          "running": "Montaggio della timeline in corso…",
+          "failed": "Montaggio non riuscito"
+        },
+        "write_todos": {
+          "running": "Aggiornamento del piano di produzione…",
+          "failed": "Aggiornamento del piano non riuscito"
+        }
+      },
+      "status": {
+        "thinking": [
+          "Director sta pensando…",
+          "Director sta ragionando…",
+          "Ci sto lavorando…",
+          "Sto collegando le idee…"
+        ],
+        "writing": [
+          "Director sta scrivendo…",
+          "Sto componendo la risposta…",
+          "Sto mettendo in parole…"
+        ],
+        "generating": [
+          "Director sta generando…",
+          "Sto creando i contenuti…",
+          "Sto dando vita all'idea…",
+          "Rendering in corso…"
+        ]
+      }
+    }
+  }
+}

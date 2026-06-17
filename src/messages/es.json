@@ -1,0 +1,65 @@
+{
+  "director": {
+    "conversation": {
+      "confirmation": {
+        "imageQuestion": "¿Continuar con la generación de la imagen?",
+        "videoQuestion": "¿Continuar con la generación del vídeo?",
+        "defaultQuestion": "¿Continuar?",
+        "credits": "{count} créditos",
+        "confirm": "Continuar",
+        "confirmBusy": "Enviando…",
+        "cancel": "Cancelar",
+        "cancelBusy": "Cancelando…",
+        "answered": "Respondido",
+        "ready": "Tu generación está lista: revisa la vista previa y responde \"procede\" para iniciarla, o dime qué quieres cambiar.",
+        "castingReady": "¿Confirmas esta propuesta? Una vez confirmada, se guardará en el brief de producción."
+      },
+      "activity": {
+        "task": "Tarea",
+        "delegate_media_generation": {
+          "running": "Produciendo medios…",
+          "failed": "Paso de producción de medios fallido"
+        },
+        "delegate_screenwriter": {
+          "running": "Escribiendo historia y brief de producción…",
+          "failed": "Paso de guion fallido"
+        },
+        "delegate_research": {
+          "running": "Investigando fuentes…",
+          "failed": "Investigación fallida"
+        },
+        "delegate_caster": {
+          "running": "Desarrollando personajes, localizaciones y atrezo…",
+          "failed": "Paso de casting fallido"
+        },
+        "delegate_editor": {
+          "running": "Montando la línea de tiempo…",
+          "failed": "Montaje fallido"
+        },
+        "write_todos": {
+          "running": "Actualizando el plan de producción…",
+          "failed": "Actualización del plan fallida"
+        }
+      },
+      "status": {
+        "thinking": [
+          "Director está pensando…",
+          "Director está razonando…",
+          "Trabajando en ello…",
+          "Conectando las ideas…"
+        ],
+        "writing": [
+          "Director está escribiendo…",
+          "Redactando la respuesta…",
+          "Poniéndolo en palabras…"
+        ],
+        "generating": [
+          "Director está generando…",
+          "Creando el contenido…",
+          "Dando vida a la idea…",
+          "Renderizando…"
+        ]
+      }
+    }
+  }
+}
