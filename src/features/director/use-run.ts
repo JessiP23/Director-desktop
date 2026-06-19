@@ -124,6 +124,7 @@ export function useRun(
     directorApi
       .getRun(runId)
       .then(({ run: loaded }) => {
+        console.info(`[DESKTOP:run] getRun id=${loaded.id} title="${loaded.title}" status=${loaded.status}`);
         if (active) setRun(loaded);
       })
       .catch((err) => active && setError(err instanceof Error ? err.message : "Failed to load run"));
@@ -156,7 +157,9 @@ export function useRun(
       pendingPromptRef.current = text;
       setPendingPrompt(text);
       try {
+        console.info(`[DESKTOP:run] continueRun prompt="${text.slice(0, 120)}"`);
         const updated = await directorApi.continueRun(runId, { prompt: text });
+        console.info(`[DESKTOP:run] continueRun response id=${updated.id} title="${updated.title}" status=${updated.status}`);
         setRun(updated);
         // Stream the new turn (history already loaded; follow=1 scopes to it).
         void connect(runId, { followLatestTurn: true });

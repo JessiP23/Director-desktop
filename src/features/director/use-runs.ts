@@ -14,7 +14,8 @@ export function useRuns() {
   const refresh = React.useCallback(async () => {
     try {
       const loaded = await directorApi.listRuns();
-      console.info("[runs] loaded", loaded.length, "production(s)");
+      console.info("[DESKTOP:runs] listRuns returned", loaded.length, "run(s)");
+      loaded.forEach((r) => console.info(`[DESKTOP:runs] run id=${r.id} title="${r.title}" status=${r.status}`));
       setRuns(loaded);
       setError(null);
     } catch (err) {
@@ -30,7 +31,9 @@ export function useRuns() {
   }, [refresh]);
 
   const createRun = React.useCallback(async (payload: CreateRunPayload) => {
+    console.info("[DESKTOP:runs] createRun called", { promptSnippet: payload.prompt.slice(0, 120) });
     const run = await directorApi.createRun(payload);
+    console.info(`[DESKTOP:runs] createRun response id=${run.id} title="${run.title}"`);
     setRuns((prev) => [run, ...prev]);
     return run;
   }, []);
@@ -42,6 +45,7 @@ export function useRuns() {
 
   /** Merge a run patch coming from the live stream into the index. */
   const patchRun = React.useCallback((runId: string, patch: Partial<DirectorRun>) => {
+    if (patch.title !== undefined) console.info(`[DESKTOP:runs] patchRun id=${runId} new title="${patch.title}"`);
     setRuns((prev) => prev.map((r) => (r.id === runId ? { ...r, ...patch } : r)));
   }, []);
 

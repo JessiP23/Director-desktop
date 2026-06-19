@@ -50,6 +50,10 @@ export function DirectorWorkspace() {
     if (selectedRunId) setPendingFirstPrompt(null);
   }, [selectedRunId]);
 
+  React.useEffect(() => {
+    if (run) console.info(`[DESKTOP:workspace] run title changed → "${run.title}" (id=${run.id} status=${run.status})`);
+  }, [run?.title, run?.id, run?.status]);
+
   // Mount the lazy References canvas only after its first open, then keep it
   // alive so reopening is instant and the slide transition stays smooth.
   const [referencesMounted, setReferencesMounted] = React.useState(false);
@@ -76,10 +80,29 @@ export function DirectorWorkspace() {
   // stream) yet — render the prompt the user just sent so the screen reacts
   // immediately instead of sitting on the empty state.
   const inConversation = Boolean(selectedRunId || pendingFirstPrompt);
+  const LOADING_ITEM: StreamItem = {
+    kind: "activity",
+    id: "__director_loading__",
+    toolCallId: "__director_loading__",
+    toolName: "director",
+    status: "running",
+    timestamp: new Date().toISOString(),
+  };
+
+  // Show the loading spinner in the transcript as soon as the user sends:
+  // - `creating`: POST is in flight (no runId yet)
+  // - `isRunning`: run exists but no agent content arrived yet
+  const agentIsWorking =
+    creating ||
+    (isRunning && !items.some((i) => i.kind === "message" || i.kind === "tool-generation" || i.kind === "activity"));
+
   const conversationItems: StreamItem[] = selectedRunId
-    ? items
+    ? agentIsWorking ? [...items, LOADING_ITEM] : items
     : pendingFirstPrompt
-      ? [{ kind: "user", id: "__pending_first__", text: pendingFirstPrompt, timestamp: new Date().toISOString() }]
+      ? [
+          { kind: "user", id: "__pending_first__", text: pendingFirstPrompt, timestamp: new Date().toISOString() },
+          ...(agentIsWorking ? [LOADING_ITEM] : []),
+        ]
       : [];
 
   const composerDisabled = isRunning || sendState === "sending" || creating;
@@ -156,6 +179,7 @@ export function DirectorWorkspace() {
           )}
           <TimelinePanel
             brief={brief}
+            items={items}
             isOpen={activePanel === "timeline"}
             onClose={() => setActivePanel(null)}
           />

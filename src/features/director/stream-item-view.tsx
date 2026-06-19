@@ -142,10 +142,10 @@ function StreamItemViewImpl({
               </p>
             )}
             <div className="mt-3 flex gap-2">
-              <Button size="sm" variant="primary" onClick={() => onSend(c.confirm.toLowerCase())}>
+              <Button size="sm" variant="primary" onClick={() => onSend("proceed")}>
                 {c.confirm}
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => onSend(c.cancel.toLowerCase())}>
+              <Button size="sm" variant="ghost" onClick={() => onSend("cancel")}>
                 {c.cancel}
               </Button>
             </div>

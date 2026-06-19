@@ -2,6 +2,7 @@ import * as React from "react";
 import { X } from "lucide-react";
 import type { DirectorBrief } from "@/lib/director/contract/brief";
 import { compareScriptReference } from "@/lib/director/production-timeline";
+import type { StreamItem } from "@/lib/director/stream";
 import { cn } from "@/lib/utils/cn";
 import { useTranslations } from "@/lib/i18n";
 import { GenerationMedia } from "./media-view";
@@ -13,30 +14,70 @@ import { GenerationMedia } from "./media-view";
  * filmstrip uses approved frame posters (`scriptImages`) — so the panel stays
  * cheap no matter how many shots the edit has. Reuses `GenerationMedia`.
  */
+type TimelineClip = {
+  id: string;
+  label: string;
+  url: string;
+  kind: "image" | "video" | "audio" | "other";
+  prompt?: string;
+  poster?: string;
+};
+
+function mediaKindFromUrl(url: string): TimelineClip["kind"] {
+  if (/\.(mp4|mov|webm|m4v)(?:\?.*)?$/i.test(url)) return "video";
+  if (/\.(png|jpe?g|webp|gif|avif)(?:\?.*)?$/i.test(url)) return "image";
+  if (/\.(mp3|wav|m4a|aac|ogg|flac|opus)(?:\?.*)?$/i.test(url)) return "audio";
+  return "other";
+}
+
+function clipsFromStream(items: StreamItem[]): TimelineClip[] {
+  return items
+    .filter((item): item is Extract<StreamItem, { kind: "tool-generation" }> => item.kind === "tool-generation" && item.status === "completed" && Boolean(item.resultUrl))
+    .map((item, index) => ({
+      id: item.id,
+      label: item.toolName || `Generated asset ${index + 1}`,
+      url: item.resultUrl || "",
+      kind: item.resultKind ?? mediaKindFromUrl(item.resultUrl || ""),
+      prompt: item.previewMessage,
+      poster: item.resultKind === "video" ? item.referenceImageUrls?.[0] : undefined,
+    }));
+}
+
+function clipsFromBrief(brief: DirectorBrief | null): TimelineClip[] {
+  const scriptClips = brief?.sections?.scriptClips ?? [];
+  const posterByRef = new Map<string, string>();
+  for (const image of brief?.sections?.scriptImages ?? []) {
+    if (!posterByRef.has(image.scriptReference)) posterByRef.set(image.scriptReference, image.url);
+  }
+  return [...scriptClips]
+    .sort((a, b) => compareScriptReference(a.scriptReference, b.scriptReference))
+    .map((clip, index) => ({
+      id: `${clip.scriptReference}-${clip.url}`,
+      label: clip.scriptReference || `Shot ${index + 1}`,
+      url: clip.url,
+      kind: "video",
+      prompt: clip.prompt,
+      poster: posterByRef.get(clip.scriptReference),
+    }));
+}
+
 export function TimelinePanel({
   brief,
+  items,
   isOpen,
   onClose,
 }: {
   brief: DirectorBrief | null;
+  items: StreamItem[];
   isOpen: boolean;
   onClose: () => void;
 }) {
   const t = useTranslations("director.references");
 
   const clips = React.useMemo(() => {
-    const list = brief?.sections?.scriptClips ?? [];
-    return [...list].sort((a, b) => compareScriptReference(a.scriptReference, b.scriptReference));
-  }, [brief]);
-
-  // First approved frame per scene/shot — a cheap poster for the filmstrip.
-  const posterByRef = React.useMemo(() => {
-    const map = new Map<string, string>();
-    for (const image of brief?.sections?.scriptImages ?? []) {
-      if (!map.has(image.scriptReference)) map.set(image.scriptReference, image.url);
-    }
-    return map;
-  }, [brief]);
+    const confirmed = clipsFromBrief(brief);
+    return confirmed.length > 0 ? confirmed : clipsFromStream(items);
+  }, [brief, items]);
 
   const [selected, setSelected] = React.useState(0);
   // Keep the selection valid as the edit grows/shrinks.
@@ -78,11 +119,11 @@ export function TimelinePanel({
               <span className="grid size-5 place-items-center rounded bg-fill tabular-nums text-text-secondary">
                 {selected + 1}
               </span>
-              <span className="truncate">{active?.scriptReference}</span>
+              <span className="truncate">{active?.label}</span>
             </div>
             {active && (
               <div className="w-full max-w-3xl overflow-hidden rounded-lg">
-                <GenerationMedia key={active.url} url={active.url} kind="video" />
+                <GenerationMedia key={active.url} url={active.url} kind={active.kind} />
               </div>
             )}
             {active?.prompt && (
@@ -94,10 +135,10 @@ export function TimelinePanel({
           <div className="shrink-0 overflow-x-auto px-3 py-3 shadow-[inset_0_0.5px_0_var(--separator)]">
             <ol className="flex items-stretch gap-2">
               {clips.map((clip, index) => {
-                const poster = posterByRef.get(clip.scriptReference);
+                const poster = clip.poster || (clip.kind === "image" ? clip.url : undefined);
                 const isActive = index === selected;
                 return (
-                  <li key={`${clip.scriptReference}-${clip.url}`} className="shrink-0">
+                  <li key={clip.id} className="shrink-0">
                     <button
                       type="button"
                       onClick={() => setSelected(index)}
