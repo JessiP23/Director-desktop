@@ -1,6 +1,5 @@
 import * as React from "react";
 import type { StreamItem } from "@/lib/director/stream";
-import { detectLocale } from "@/lib/i18n";
 import { StreamItemView } from "./stream-item-view";
 
 /**
@@ -28,18 +27,6 @@ export function ConversationView({
     stickRef.current = distanceFromBottom < 80;
   }, []);
 
-  // Match the chat UI to the language the model is speaking: detect from the
-  // latest model message, falling back to the latest user message.
-  const locale = React.useMemo(() => {
-    for (let i = items.length - 1; i >= 0; i -= 1) {
-      if (items[i].kind === "message") return detectLocale((items[i] as { text: string }).text);
-    }
-    for (let i = items.length - 1; i >= 0; i -= 1) {
-      if (items[i].kind === "user") return detectLocale((items[i] as { text: string }).text);
-    }
-    return "en" as const;
-  }, [items]);
-
   React.useLayoutEffect(() => {
     const el = scrollRef.current;
     if (!el || !stickRef.current) return;
@@ -50,7 +37,7 @@ export function ConversationView({
     <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-y-auto">
       <div className="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-8">
         {items.map((item) => (
-          <StreamItemView key={item.id} item={item} onSend={onSend} locale={locale} />
+          <StreamItemView key={item.id} item={item} onSend={onSend} />
         ))}
       </div>
     </div>

@@ -1,14 +1,19 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import type { StreamItem } from "@/lib/director/stream";
-import { AssetsPanel } from "./assets-panel";
 import { Composer } from "./composer";
 import { ConversationView } from "./conversation-view";
 import { RunSidebar } from "./run-sidebar";
-import { TimelineView } from "./timeline-view";
+import { TimelinePanel } from "./timeline-view";
 import { useBrief } from "./use-brief";
 import { useRun } from "./use-run";
 import { useRuns } from "./use-runs";
+
+// The References canvas pulls in React Flow; load it only when first opened so
+// it stays out of the initial bundle.
+const AssetsPanel = React.lazy(() =>
+  import("./assets-panel").then((m) => ({ default: m.AssetsPanel })),
+);
 
 type SidePanel = "references" | "timeline";
 
@@ -44,6 +49,13 @@ export function DirectorWorkspace() {
   React.useEffect(() => {
     if (selectedRunId) setPendingFirstPrompt(null);
   }, [selectedRunId]);
+
+  // Mount the lazy References canvas only after its first open, then keep it
+  // alive so reopening is instant and the slide transition stays smooth.
+  const [referencesMounted, setReferencesMounted] = React.useState(false);
+  React.useEffect(() => {
+    if (activePanel === "references") setReferencesMounted(true);
+  }, [activePanel]);
 
   async function startNewProduction(prompt: string) {
     // Show the prompt instantly — don't wait on the create round-trip.
@@ -128,29 +140,26 @@ export function DirectorWorkspace() {
         )}
       </main>
 
-      {selectedRunId && activePanel === "timeline" && (
-        <aside className="flex w-80 shrink-0 flex-col bg-surface-1 shadow-[inset_0.5px_0_0_var(--separator)]">
-          <div
-            data-tauri-drag-region
-            className="flex h-12 shrink-0 items-center px-4 text-xs font-medium capitalize text-text-secondary shadow-[inset_0_-0.5px_0_var(--separator)]"
-          >
-            {activePanel}
-          </div>
-          <div className="min-h-0 flex-1">
-            <TimelineView brief={brief} />
-          </div>
-        </aside>
-      )}
-
-      {/* References open as the React Flow brief canvas (ported from the web),
-          a slide-over overlay rather than the narrow side panel. */}
+      {/* References and Timeline both open as slide-over overlays (the canvas
+          experience) rather than a narrow side panel. */}
       {selectedRunId && (
-        <AssetsPanel
-          runId={selectedRunId}
-          isOpen={activePanel === "references"}
-          onClose={() => setActivePanel(null)}
-          brief={brief}
-        />
+        <>
+          {referencesMounted && (
+            <React.Suspense fallback={null}>
+              <AssetsPanel
+                runId={selectedRunId}
+                isOpen={activePanel === "references"}
+                onClose={() => setActivePanel(null)}
+                brief={brief}
+              />
+            </React.Suspense>
+          )}
+          <TimelinePanel
+            brief={brief}
+            isOpen={activePanel === "timeline"}
+            onClose={() => setActivePanel(null)}
+          />
+        </>
       )}
     </div>
   );

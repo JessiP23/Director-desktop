@@ -21,21 +21,10 @@ export function conversationMessages(locale: Locale) {
   return BUNDLES[locale].director.conversation;
 }
 
-// Marker-based detection, mirroring the backend's approach.
-const ES_MARKERS = /[¿¡ñ]|[áíóú]|\b(generar|continuar|procede|cancelar|imagen|vídeo|esto|también)\b/i;
-const IT_MARKERS = /[àèìòù]|\b(genera|procedi|conferma|annulla|immagine|questa|proposta|anteprima)\b/i;
-
-export function detectLocale(text: string): Locale {
-  const sample = (text || "").toLowerCase();
-  if (ES_MARKERS.test(sample)) return "es";
-  if (IT_MARKERS.test(sample)) return "it";
-  return "en";
-}
-
 /**
- * App-UI locale — follows the OS language (en/it/es), default English. Drives
- * static chrome ported from the web (the references canvas, etc.). Chat content
- * still adapts to the model via `detectLocale`.
+ * App-UI locale — follows the OS language (en/it/es), default English. This is
+ * the desktop's equivalent of wmstudio's route locale: a single UI language for
+ * all chrome and translated strings.
  */
 export function appLocale(): Locale {
   const lang = (typeof navigator !== "undefined" ? navigator.language : "en").toLowerCase();

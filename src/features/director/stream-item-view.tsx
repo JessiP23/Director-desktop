@@ -7,14 +7,33 @@ import { cn } from "@/lib/utils/cn";
 import type { StreamItem } from "@/lib/director/stream";
 import { GenerationMedia } from "./media-view";
 
-import { conversationMessages, type Locale } from "@/lib/i18n";
+import { appLocale, conversationMessages } from "@/lib/i18n";
+
+// The backend emits these confirmation lines hardcoded in Italian. Exactly like
+// wmstudio's conversation.tsx, we swap them for the localized strings before
+// rendering, so an English/Spanish chat doesn't show Italian.
+const MEDIA_CONFIRMATION_MESSAGE_IT =
+  "La generazione è pronta: controlla l'anteprima e rispondi \"procedi\" per avviarla, oppure dimmi cosa vuoi modificare.";
+const CASTING_CONFIRMATION_TAIL_IT =
+  "Confermi questa proposta? Dopo la conferma verrà salvata nel brief di produzione.";
+
+/** Apply wmstudio's confirmation-string localization to an agent message. */
+function localizeAgentMessage(text: string): string {
+  const confirmation = conversationMessages(appLocale()).confirmation;
+  const trimmed = text.trim();
+  if (trimmed === MEDIA_CONFIRMATION_MESSAGE_IT) return confirmation.ready;
+  if (trimmed.endsWith(CASTING_CONFIRMATION_TAIL_IT)) {
+    return `${trimmed.slice(0, -CASTING_CONFIRMATION_TAIL_IT.length).trimEnd()}\n\n${confirmation.castingReady}`;
+  }
+  return text;
+}
 
 /**
  * Localized label for an internal Director delegation/activity tool, reusing
  * wmstudio's `director.conversation.activity` strings (copied into the desktop).
  */
-function activityLabel(toolName: string, locale: Locale): string {
-  const activity = conversationMessages(locale).activity as Record<
+function activityLabel(toolName: string): string {
+  const activity = conversationMessages(appLocale()).activity as Record<
     string,
     { running?: string } | string
   >;
@@ -45,17 +64,15 @@ function itemsEqual(a: StreamItem, b: StreamItem): boolean {
 }
 
 export const StreamItemView = React.memo(StreamItemViewImpl, (prev, next) =>
-  prev.onSend === next.onSend && prev.locale === next.locale && itemsEqual(prev.item, next.item),
+  prev.onSend === next.onSend && itemsEqual(prev.item, next.item),
 );
 
 function StreamItemViewImpl({
   item,
   onSend,
-  locale,
 }: {
   item: StreamItem;
   onSend: (text: string) => void;
-  locale: Locale;
 }) {
   switch (item.kind) {
     case "user":
@@ -71,7 +88,7 @@ function StreamItemViewImpl({
       return (
         <div className="flex justify-start gap-3">
           <Brand showWordmark={false} className="mt-1 shrink-0" />
-          <Markdown className="max-w-[85%]">{item.text}</Markdown>
+          <Markdown className="max-w-[85%]">{localizeAgentMessage(item.text)}</Markdown>
         </div>
       );
 
@@ -98,7 +115,7 @@ function StreamItemViewImpl({
             <span className={cn("size-1.5 rounded-full", item.status === "failed" ? "bg-danger" : "bg-fg-subtle")} />
           )}
           <span>
-            {activityLabel(item.toolName, locale)}
+            {activityLabel(item.toolName)}
             {item.status === "failed" && item.errorMessage ? ` — ${item.errorMessage}` : "…"}
           </span>
         </div>
@@ -115,7 +132,7 @@ function StreamItemViewImpl({
       }
 
       if (item.status === "awaiting-confirmation" && !item.confirmed) {
-        const c = conversationMessages(locale).confirmation;
+        const c = conversationMessages(appLocale()).confirmation;
         return (
           <div className="rounded-2xl border border-accent/30 bg-ink-850 p-4">
             <Markdown>{item.previewMessage ?? c.defaultQuestion}</Markdown>
