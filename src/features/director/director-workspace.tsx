@@ -15,6 +15,12 @@ const AssetsPanel = React.lazy(() =>
   import("./assets-panel").then((m) => ({ default: m.AssetsPanel })),
 );
 
+// The Library (memory/skills/tools) is user-scoped and rarely the first thing
+// opened, so it loads on demand too.
+const LibraryPanel = React.lazy(() =>
+  import("@/features/library/library-panel").then((m) => ({ default: m.LibraryPanel })),
+);
+
 type SidePanel = "references" | "timeline";
 
 /**
@@ -30,6 +36,13 @@ export function DirectorWorkspace() {
   // being created (before its id — and therefore its stream — exists).
   const [pendingFirstPrompt, setPendingFirstPrompt] = React.useState<string | null>(null);
   const [activePanel, setActivePanel] = React.useState<SidePanel | null>(null);
+  const [libraryOpen, setLibraryOpen] = React.useState(false);
+  // Mount the lazy Library only after its first open, then keep it alive.
+  const [libraryMounted, setLibraryMounted] = React.useState(false);
+  const openLibrary = React.useCallback(() => {
+    setLibraryMounted(true);
+    setLibraryOpen(true);
+  }, []);
   const [briefKey, setBriefKey] = React.useState(0);
 
   const togglePanel = (panel: SidePanel) =>
@@ -116,6 +129,7 @@ export function DirectorWorkspace() {
         selectedRunId={selectedRunId}
         onSelect={setSelectedRunId}
         onNew={() => setSelectedRunId(null)}
+        onOpenLibrary={openLibrary}
       />
 
       <main className="flex min-w-0 flex-1 flex-col bg-surface-0">
@@ -184,6 +198,13 @@ export function DirectorWorkspace() {
             onClose={() => setActivePanel(null)}
           />
         </>
+      )}
+
+      {/* Library is user-scoped, so it lives outside the run-gated panels. */}
+      {libraryMounted && (
+        <React.Suspense fallback={null}>
+          <LibraryPanel isOpen={libraryOpen} onClose={() => setLibraryOpen(false)} />
+        </React.Suspense>
       )}
     </div>
   );

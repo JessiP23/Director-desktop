@@ -1,3 +1,4 @@
+import { Library } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils/cn";
@@ -18,6 +19,7 @@ export function RunSidebar({
   selectedRunId,
   onSelect,
   onNew,
+  onOpenLibrary,
 }: {
   runs: DirectorRun[];
   loading: boolean;
@@ -25,6 +27,7 @@ export function RunSidebar({
   selectedRunId: string | null;
   onSelect: (runId: string) => void;
   onNew: () => void;
+  onOpenLibrary: () => void;
 }) {
   return (
     <aside className="material flex w-64 shrink-0 flex-col bg-material-sidebar shadow-[inset_-0.5px_0_0_var(--separator)]">
@@ -75,6 +78,17 @@ export function RunSidebar({
           </ul>
         )}
       </nav>
+
+      <div className="border-t border-separator/60 px-3 py-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2 text-fg-muted"
+          onClick={onOpenLibrary}
+        >
+          <Library className="size-4" /> Library
+        </Button>
+      </div>
     </aside>
   );
 }
