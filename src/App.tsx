@@ -8,34 +8,43 @@ import { useAuth } from "@/features/auth/auth-context";
 import { SignInScreen } from "@/features/auth/sign-in-screen";
 import { DirectorWorkspace } from "@/features/director/director-workspace";
 
-// Dev-only primitives gallery, loaded lazily so it never enters the shipped
-// bundle. Open with the #gallery hash in `pnpm dev`; no effect in production.
+// Dev-only galleries, loaded lazily so they never enter the shipped bundle.
+// Open with #gallery (primitives) or #palmier (Palmier tokens) in `pnpm dev`.
 const PrimitivesGallery = React.lazy(() =>
   import("@/features/gallery/primitives-gallery").then((m) => ({ default: m.PrimitivesGallery })),
 );
+const PalmierGallery = React.lazy(() =>
+  import("@/features/gallery/palmier-gallery").then((m) => ({ default: m.PalmierGallery })),
+);
 
-function useGalleryRoute() {
-  const [on, setOn] = React.useState(() => import.meta.env.DEV && window.location.hash === "#gallery");
+/** The active dev gallery route (hash), or "" in production / no match. */
+function useDevRoute() {
+  const read = () => (import.meta.env.DEV ? window.location.hash.replace(/^#/, "") : "");
+  const [route, setRoute] = React.useState(read);
   React.useEffect(() => {
-    const sync = () => setOn(import.meta.env.DEV && window.location.hash === "#gallery");
+    const sync = () => setRoute(read());
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
   }, []);
-  return on;
+  return route;
 }
 
 function Gate() {
   const { status } = useAuth();
-  const gallery = useGalleryRoute();
+  const route = useDevRoute();
 
   // The shell (and its platform-branched title bar + window controls) is always
   // present so every state — loading, sign-in, authed — is draggable and, on
   // frameless Windows, has working min/max/close controls.
   return (
     <AppShell>
-      {gallery ? (
+      {route === "gallery" ? (
         <React.Suspense fallback={null}>
           <PrimitivesGallery />
+        </React.Suspense>
+      ) : route === "palmier" ? (
+        <React.Suspense fallback={null}>
+          <PalmierGallery />
         </React.Suspense>
       ) : status === "loading" ? (
         <div className="flex h-full items-center justify-center text-text-tertiary">

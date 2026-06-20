@@ -33,6 +33,13 @@ import {
   Folder,
   GripVertical,
   Pin,
+  Users,
+  MapPin,
+  Package,
+  Palette,
+  ClipboardList,
+  HelpCircle,
+  FileText,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -72,6 +79,14 @@ export const icons = {
   asset: Folder,
   drag: GripVertical,
   pin: Pin,
+  // Brief-section icons (References panel).
+  characters: Users,
+  location: MapPin,
+  prop: Package,
+  visual: Palette,
+  continuity: ClipboardList,
+  question: HelpCircle,
+  document: FileText,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof icons;

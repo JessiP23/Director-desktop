@@ -13,22 +13,40 @@ const clampScale = (s: number) => Math.min(Math.max(s, MIN_SCALE), MAX_SCALE);
  * Generic pannable / zoomable surface. Hosts arbitrary children in a single
  * transformed layer (GPU translate+scale only — never re-layouts on pan/zoom),
  * over a dotted board. Drag empty space to pan, ⌘/ctrl-wheel or the controls to
- * zoom. No asset/feature logic: References and any future board compose on top.
+ * zoom. `origin="center"` places content coordinate (0,0) at the viewport
+ * center (and "Reset" returns there) — for radial graphs like the brief tree.
  */
 export function Canvas({
   children,
   className,
   controls = true,
+  origin = "top-left",
 }: {
   children: React.ReactNode;
   className?: string;
   controls?: boolean;
+  origin?: "top-left" | "center";
 }) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const [t, setT] = React.useState<Transform>({ x: 0, y: 0, scale: 1 });
   const drag = React.useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
 
+  const centerTransform = React.useCallback((): Transform => {
+    const el = containerRef.current;
+    if (origin !== "center" || !el) return { x: 0, y: 0, scale: 1 };
+    return { x: el.clientWidth / 2, y: el.clientHeight / 2, scale: 1 };
+  }, [origin]);
+
+  // Center the content origin once the container has a measured size.
+  const centered = React.useRef(false);
+  React.useLayoutEffect(() => {
+    if (origin !== "center" || centered.current || !containerRef.current?.clientWidth) return;
+    centered.current = true;
+    setT(centerTransform());
+  }, [origin, centerTransform]);
+
   const onPointerDown = (e: React.PointerEvent) => {
-    // Pan only from the background, not from a tile that handled the press.
+    // Pan only from the background, not from a node that handled the press.
     if (e.target !== e.currentTarget) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     drag.current = { x: e.clientX, y: e.clientY, ox: t.x, oy: t.y };
@@ -44,17 +62,14 @@ export function Canvas({
   const onWheel = (e: React.WheelEvent) => {
     if (!(e.ctrlKey || e.metaKey)) return;
     e.preventDefault();
-    setT((cur) => {
-      const next = clampScale(cur.scale * (1 - e.deltaY * 0.0015));
-      return { ...cur, scale: next };
-    });
+    setT((cur) => ({ ...cur, scale: clampScale(cur.scale * (1 - e.deltaY * 0.0015)) }));
   };
 
   const zoomBy = (factor: number) => setT((cur) => ({ ...cur, scale: clampScale(cur.scale * factor) }));
-  const reset = () => setT({ x: 0, y: 0, scale: 1 });
+  const reset = () => setT(centerTransform());
 
   return (
-    <div className={cn("relative min-h-0 flex-1 overflow-hidden bg-surface-0", className)}>
+    <div ref={containerRef} className={cn("relative min-h-0 flex-1 overflow-hidden bg-surface-0", className)}>
       <div
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

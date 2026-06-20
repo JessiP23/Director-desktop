@@ -6,7 +6,6 @@ export { Button, type ButtonProps } from "./button";
 export { Spinner } from "./spinner";
 export { Brand } from "./brand";
 export { Markdown } from "./markdown";
-export { SlideOver } from "./slide-over";
 
 export { Icon, icons, type IconName, type LucideIcon } from "./icon";
 export { IconButton, type IconButtonProps } from "./icon-button";

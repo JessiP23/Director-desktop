@@ -72,6 +72,85 @@
   --shadow-pop: 0 0 0 .5px rgba(255,255,255,.08), 0 12px 32px rgba(0,0,0,.48);
 }
 
+/* 1b ── PALMIER PRO tokens (transcribed from AppTheme.swift / Constants.swift)
+ *  Namespaced --pm-* so they coexist with the system above during the phased
+ *  migration. Palmier is dark-only → these are fixed (not theme-varied).
+ *  Accent decision: off-white --accent-primary + brand-amber timecode.
+ * ─────────────────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds — the 4-step dark ramp + pure-black preview */
+  --pm-bg-base: rgb(10, 10, 10);
+  --pm-bg-surface: rgb(22, 22, 22);
+  --pm-bg-raised: rgb(30, 30, 30);
+  --pm-bg-prominent: rgb(44, 44, 44);
+  --pm-preview-canvas: #000000;
+
+  /* Borders — white at low alpha */
+  --pm-border-primary: rgba(255, 255, 255, 0.16);
+  --pm-border-subtle: rgba(255, 255, 255, 0.12);
+  --pm-border-divider: rgba(255, 255, 255, 0.44);
+  --pm-border-hairline: 0.5px;
+  --pm-border-thin: 1px;
+  --pm-border-medium: 1.5px;
+  --pm-border-thick: 2px;
+
+  /* Text — white at descending alpha (this IS the hierarchy) */
+  --pm-text-primary: rgba(255, 255, 255, 1);
+  --pm-text-secondary: rgba(255, 255, 255, 0.8);
+  --pm-text-tertiary: rgba(255, 255, 255, 0.62);
+  --pm-text-muted: rgba(255, 255, 255, 0.34);
+
+  /* Accent — Palmier off-white (focus/selection); timecode = your brand amber */
+  --pm-accent-primary: rgb(245, 239, 228);
+  --pm-accent-timecode: #e6b15a;
+  --pm-ai-gradient: linear-gradient(135deg, #fff 0%, #c7c7c7 45%, #999 55%, #fff 100%);
+
+  /* Track-type tints + status */
+  --pm-track-video: rgb(0, 145, 194);
+  --pm-track-audio: rgb(88, 168, 34);
+  --pm-track-image: rgb(183, 45, 210);
+  --pm-track-text: rgb(183, 45, 210);
+  --pm-track-lottie: rgb(224, 168, 0);
+  --pm-error: rgb(229, 79, 79);
+
+  /* Opacity scale (hover/active fills) */
+  --pm-o-subtle: 0.04; --pm-o-hint: 0.06; --pm-o-faint: 0.08; --pm-o-soft: 0.1;
+  --pm-o-muted: 0.15; --pm-o-moderate: 0.25; --pm-o-medium: 0.35; --pm-o-strong: 0.55; --pm-o-prominent: 0.8;
+
+  /* Corner radii (px) — panels/controls = sm 6, clips = xs 3 */
+  --pm-r-xs: 3px; --pm-r-xsSm: 4px; --pm-r-sm: 6px; --pm-r-md: 10px;
+  --pm-r-mdLg: 12px; --pm-r-lg: 14px; --pm-r-xl: 20px;
+
+  /* Spacing scale (px) */
+  --pm-s-xxs: 2px; --pm-s-xs: 4px; --pm-s-sm: 6px; --pm-s-smMd: 8px; --pm-s-md: 10px;
+  --pm-s-mdLg: 12px; --pm-s-lg: 14px; --pm-s-lgXl: 16px; --pm-s-xl: 20px; --pm-s-xlXxl: 24px; --pm-s-xxl: 28px;
+
+  /* Font sizes (px) — body/UI is 11–13px */
+  --pm-f-micro: 8px; --pm-f-xxs: 9px; --pm-f-xs: 10px; --pm-f-sm: 11px; --pm-f-smMd: 12px;
+  --pm-f-md: 13px; --pm-f-mdLg: 14px; --pm-f-lg: 15px; --pm-f-xl: 18px;
+  --pm-f-title1: 22px; --pm-f-title2: 28px; --pm-f-display: 36px;
+
+  /* Tracking + icon sizes (px) */
+  --pm-tracking-tight: -0.5px; --pm-tracking-wide: 1.5px;
+  --pm-i-xxs: 12px; --pm-i-xs: 14px; --pm-i-sm: 18px; --pm-i-smMd: 20px; --pm-i-md: 22px;
+  --pm-i-mdLg: 24px; --pm-i-lg: 26px; --pm-i-lgXl: 28px; --pm-i-xl: 30px;
+
+  /* Shadows + animation */
+  --pm-shadow-sm: 0 0.5px 1px rgba(0, 0, 0, 0.3);
+  --pm-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --pm-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --pm-anim-hover: 0.15s; --pm-anim-transition: 0.2s;
+
+  /* Layout dimensions (Constants.swift) */
+  --pm-media-w: 500px; --pm-media-min: 280px; --pm-rail-w: 38px;
+  --pm-inspector-w: 260px; --pm-inspector-min: 150px;
+  --pm-agent-min: 240px; --pm-agent-max: 640px;
+  --pm-panel-header-h: 28px; --pm-toolbar-h: 38px; --pm-panel-gap: 5px;
+  --pm-timeline-min: 100px; --pm-timeline-max: 700px; --pm-track-h: 50px; --pm-ruler-h: 24px; --pm-track-header-w: 100px;
+  --pm-preview-min-w: 400px; --pm-preview-min-h: 320px;
+  --pm-ref-tile-w: 80px; --pm-ref-tile-h: 56px;
+}
+
 /* 2 ── Bind tokens to Tailwind utilities (inline = live var refs) ──── */
 @theme inline {
   /* semantic colors */
@@ -123,6 +202,32 @@
   --default-transition-timing-function: cubic-bezier(.25,.46,.45,.94);
   --default-transition-duration: 150ms;
   --duration-fast: 150ms; --duration-normal: 250ms; --duration-slow: 350ms;
+
+  /* Palmier utilities — bg-pm-*, text-pm-*, border-pm-*, rounded-pm-* */
+  --color-pm-base: var(--pm-bg-base);
+  --color-pm-surface: var(--pm-bg-surface);
+  --color-pm-raised: var(--pm-bg-raised);
+  --color-pm-prominent: var(--pm-bg-prominent);
+  --color-pm-preview: var(--pm-preview-canvas);
+  --color-pm-border: var(--pm-border-primary);
+  --color-pm-border-subtle: var(--pm-border-subtle);
+  --color-pm-border-divider: var(--pm-border-divider);
+  --color-pm-text: var(--pm-text-primary);
+  --color-pm-text-secondary: var(--pm-text-secondary);
+  --color-pm-text-tertiary: var(--pm-text-tertiary);
+  --color-pm-text-muted: var(--pm-text-muted);
+  --color-pm-accent: var(--pm-accent-primary);
+  --color-pm-timecode: var(--pm-accent-timecode);
+  --color-pm-track-video: var(--pm-track-video);
+  --color-pm-track-audio: var(--pm-track-audio);
+  --color-pm-track-image: var(--pm-track-image);
+  --color-pm-track-lottie: var(--pm-track-lottie);
+  --color-pm-error: var(--pm-error);
+  --radius-pm-xs: var(--pm-r-xs);
+  --radius-pm-sm: var(--pm-r-sm);
+  --radius-pm-md: var(--pm-r-md);
+  --radius-pm-lg: var(--pm-r-lg);
+  --radius-pm-xl: var(--pm-r-xl);
 }
 
 /* 3 ── Base + native niceties ──────────────────────────────────────── */
