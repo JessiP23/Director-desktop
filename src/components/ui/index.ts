@@ -15,6 +15,7 @@ export { EmptyState } from "./empty-state";
 export { Card } from "./card";
 export { Thumbnail } from "./thumbnail";
 export { AssetTile } from "./asset-tile";
+export { Lightbox } from "./lightbox";
 export { SegmentedControl, type SegmentedOption } from "./segmented-control";
 export { Toolbar, ToolbarGroup, ToolbarSeparator } from "./toolbar";
 export { Tooltip } from "./tooltip";

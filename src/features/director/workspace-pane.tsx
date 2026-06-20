@@ -30,7 +30,7 @@ export function WorkspacePane(props: WorkspacePaneProps) {
   if (!props.inConversation) return <StartScreen onStart={props.onStart} busy={props.starting} />;
 
   return (
-    <section className="flex min-w-0 flex-1 flex-col bg-surface-0">
+    <section className="flex min-h-0 min-w-0 flex-1 flex-col bg-surface-0">
       <RunToolbar title={props.runTitle} hasRun={props.hasRun} />
       {props.error && (
         <div className="bg-danger/10 px-4 py-2 text-center text-xs text-danger">{props.error}</div>
@@ -75,7 +75,7 @@ function RunToolbar({ title, hasRun }: { title?: string; hasRun: boolean }) {
 /** First-run hero + composer (no run selected yet). */
 function StartScreen({ onStart, busy }: { onStart: (prompt: string) => void; busy: boolean }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col bg-surface-0">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-surface-0">
       <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
         <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.22em] text-fg-subtle">
           WM Studio · Director

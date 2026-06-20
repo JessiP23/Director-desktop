@@ -5,9 +5,11 @@ import { useLayout } from "@/lib/layout/use-layout";
 import type { PanelId } from "@/lib/layout/layout-types";
 import { TimelinePanel } from "./timeline-view";
 
-// Heavy overlays load on demand so they stay out of first paint (References
-// pulls in React Flow; Library is a separate tabbed surface).
-const AssetsPanel = React.lazy(() => import("./assets-panel").then((m) => ({ default: m.AssetsPanel })));
+// Overlays load on demand so they stay out of first paint. References is now a
+// lightweight Canvas of tiles (no React Flow); Library is a separate surface.
+const ReferencesCanvas = React.lazy(() =>
+  import("./references-canvas").then((m) => ({ default: m.ReferencesCanvas })),
+);
 const LibraryPanel = React.lazy(() =>
   import("@/features/library/library-panel").then((m) => ({ default: m.LibraryPanel })),
 );
@@ -40,7 +42,7 @@ export function WorkspaceOverlays({
     <>
       {runId && mounted.has("references") && (
         <React.Suspense fallback={null}>
-          <AssetsPanel runId={runId} isOpen={overlay === "references"} onClose={() => close("overlay")} brief={brief} />
+          <ReferencesCanvas runId={runId} isOpen={overlay === "references"} onClose={() => close("overlay")} brief={brief} />
         </React.Suspense>
       )}
 

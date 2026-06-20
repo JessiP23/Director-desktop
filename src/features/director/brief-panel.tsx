@@ -43,16 +43,21 @@ export function BriefPanel({ brief, loading }: { brief: DirectorBrief | null; lo
 
   const s = brief?.sections;
   const hasAnything =
-    s &&
-    (s.logline ||
-      s.referenceImages ||
-      s.characters ||
-      s.locations ||
-      s.props ||
-      s.script ||
-      s.visualLanguage ||
-      s.decisions?.length ||
-      s.openQuestions?.length);
+    (s &&
+      (s.logline ||
+        s.creativeBrief ||
+        s.referenceImages ||
+        s.characters ||
+        s.locations ||
+        s.props ||
+        s.script ||
+        s.productionPlan ||
+        s.audio ||
+        s.continuity ||
+        s.visualLanguage ||
+        s.decisions?.length ||
+        s.openQuestions?.length)) ||
+    brief?.summary;
 
   if (!hasAnything) {
     return (
@@ -69,6 +74,12 @@ export function BriefPanel({ brief, loading }: { brief: DirectorBrief | null; lo
       {s?.logline && (
         <Section title="Logline">
           <p className="text-sm italic leading-relaxed text-fg">{s.logline}</p>
+        </Section>
+      )}
+
+      {s?.creativeBrief && (
+        <Section title="Creative brief">
+          <Markdown className="text-xs">{s.creativeBrief}</Markdown>
         </Section>
       )}
 
@@ -104,6 +115,24 @@ export function BriefPanel({ brief, loading }: { brief: DirectorBrief | null; lo
         </Section>
       )}
 
+      {s?.productionPlan && (
+        <Section title="Production plan">
+          <Markdown className="text-xs">{s.productionPlan}</Markdown>
+        </Section>
+      )}
+
+      {s?.audio && (
+        <Section title="Audio">
+          <p className="text-xs leading-relaxed text-fg-muted">{s.audio}</p>
+        </Section>
+      )}
+
+      {s?.continuity && (
+        <Section title="Continuity">
+          <p className="text-xs leading-relaxed text-fg-muted">{s.continuity}</p>
+        </Section>
+      )}
+
       {s?.decisions && s.decisions.length > 0 && (
         <Section title="Locked decisions">
           <ul className="list-disc space-y-1 pl-4 text-xs text-fg-muted marker:text-fg-subtle">
@@ -121,6 +150,12 @@ export function BriefPanel({ brief, loading }: { brief: DirectorBrief | null; lo
               <li key={i}>{q}</li>
             ))}
           </ul>
+        </Section>
+      )}
+
+      {brief?.summary && (
+        <Section title="Summary">
+          <p className="text-xs leading-relaxed text-fg-muted">{brief.summary}</p>
         </Section>
       )}
     </div>
