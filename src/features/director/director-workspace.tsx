@@ -3,7 +3,7 @@ import type { StreamItem } from "@/lib/director/stream";
 import { AgentColumn } from "./palmier/agent-column";
 import { InspectorPanel } from "./palmier/inspector-panel";
 import { MediaDock } from "./palmier/media-dock";
-import { PalmierShell } from "./palmier/palmier-shell";
+import { PalmierShell, type Preset } from "./palmier/palmier-shell";
 import { PreviewPanel } from "./palmier/preview-panel";
 import { ProductionsHome } from "./palmier/productions-home";
 import { TimelineDock } from "./palmier/timeline-dock";
@@ -24,7 +24,8 @@ export function DirectorWorkspace() {
   const [creating, setCreating] = React.useState(false);
   const [pendingFirstPrompt, setPendingFirstPrompt] = React.useState<string | null>(null);
   const [briefKey, setBriefKey] = React.useState(0);
-  const agentOpen = true; // title-bar toggle lands in Phase C
+  const [agentOpen, setAgentOpen] = React.useState(true);
+  const [preset, setPreset] = React.useState<Preset>("default");
 
   const onBriefUpdated = React.useCallback(() => setBriefKey((k) => k + 1), []);
   const { items, send, sendState, isRunning, run, error } = useRun(selectedRunId, {
@@ -80,6 +81,9 @@ export function DirectorWorkspace() {
     <PalmierShell
       inEditor={inEditor}
       agentOpen={agentOpen}
+      preset={preset}
+      onToggleAgent={() => setAgentOpen((v) => !v)}
+      onPreset={setPreset}
       home={
         <ProductionsHome
           runs={runs}

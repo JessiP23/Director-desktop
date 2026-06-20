@@ -40,6 +40,7 @@ import {
   ClipboardList,
   HelpCircle,
   FileText,
+  MessageSquare,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -87,6 +88,7 @@ export const icons = {
   continuity: ClipboardList,
   question: HelpCircle,
   document: FileText,
+  chat: MessageSquare,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof icons;
