@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Brand } from "@/components/ui/brand";
 import { Button } from "@/components/ui/button";
+import { Card, Icon } from "@/components/ui";
 import { Markdown } from "@/components/ui/markdown";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils/cn";
@@ -124,20 +125,20 @@ function StreamItemViewImpl({
     case "tool-generation": {
       if (item.status === "running") {
         return (
-          <div className="flex items-center gap-2.5 rounded-xl border border-line bg-ink-850 px-4 py-3 text-xs text-fg-muted">
+          <Card className="flex items-center gap-2.5 px-4 py-3 text-xs text-text-secondary">
             <Spinner className="size-3.5 text-accent" />
             Rendering…
-          </div>
+          </Card>
         );
       }
 
       if (item.status === "awaiting-confirmation" && !item.confirmed) {
         const c = conversationMessages(appLocale()).confirmation;
         return (
-          <div className="rounded-2xl border border-accent/30 bg-ink-850 p-4">
+          <Card className="border-accent/30 p-4">
             <Markdown>{item.previewMessage ?? c.defaultQuestion}</Markdown>
             {typeof item.previewCredits === "number" && (
-              <p className="mt-1 text-xs text-fg-muted">
+              <p className="mt-1 text-xs text-text-tertiary">
                 {c.credits.replace("{count}", String(item.previewCredits))}
               </p>
             )}
@@ -149,13 +150,14 @@ function StreamItemViewImpl({
                 {c.cancel}
               </Button>
             </div>
-          </div>
+          </Card>
         );
       }
 
       if (item.status === "failed") {
         return (
-          <div className="rounded-xl bg-danger/10 px-3.5 py-2 text-xs text-danger">
+          <div className="flex items-center gap-2 rounded-xl bg-danger/10 px-3.5 py-2 text-xs text-danger">
+            <Icon name="close" size={13} />
             Generation failed{item.errorMessage ? `: ${item.errorMessage}` : "."}
           </div>
         );
@@ -163,11 +165,11 @@ function StreamItemViewImpl({
 
       // completed (or a confirmed preview that has since produced media)
       return (
-        <div className="overflow-hidden rounded-2xl border border-line bg-ink-850">
+        <Card className="overflow-hidden">
           {item.resultUrl && (
             <GenerationMedia url={item.resultUrl} kind={item.resultKind} aspectRatio={item.aspectRatio} />
           )}
-        </div>
+        </Card>
       );
     }
 

@@ -1,52 +1,43 @@
 import * as React from "react";
-import { Button } from "@/components/ui/button";
+import type { TabItem } from "@/components/ui";
+import type { DirectorRun } from "@/lib/director/contract/director";
 import type { StreamItem } from "@/lib/director/stream";
-import { Composer } from "./composer";
-import { ConversationView } from "./conversation-view";
+import { LayoutProvider, useLayout } from "@/lib/layout/use-layout";
+import { AppLayout } from "@/features/shell/app-layout";
+import { CenterHost } from "./center-host";
+import { InspectorDock } from "./inspector-dock";
 import { RunSidebar } from "./run-sidebar";
-import { TimelinePanel } from "./timeline-view";
+import { WorkspaceOverlays } from "./workspace-overlays";
+import { WorkspacePane } from "./workspace-pane";
 import { useBrief } from "./use-brief";
 import { useRun } from "./use-run";
 import { useRuns } from "./use-runs";
 
-// The References canvas pulls in React Flow; load it only when first opened so
-// it stays out of the initial bundle.
-const AssetsPanel = React.lazy(() =>
-  import("./assets-panel").then((m) => ({ default: m.AssetsPanel })),
-);
-
-// The Library (memory/skills/tools) is user-scoped and rarely the first thing
-// opened, so it loads on demand too.
-const LibraryPanel = React.lazy(() =>
-  import("@/features/library/library-panel").then((m) => ({ default: m.LibraryPanel })),
-);
-
-type SidePanel = "references" | "timeline";
-
 /**
- * The Director cockpit: run list (left), active conversation (center), and a
- * toggleable references/brief panel (right). A "new production" is started by
- * sending a first prompt with no run selected.
+ * The Director cockpit. Business state (runs/stream/brief) lives in
+ * WorkspaceInner; the Cursor-style arrangement (sidebar · tabbed center ·
+ * docked inspector · overlays) is composed via AppLayout + the layout manager.
+ * The active tab selects the single live stream — opening a run "to the side"
+ * mounts a second, self-contained compare pane.
  */
 export function DirectorWorkspace() {
+  return (
+    <LayoutProvider>
+      <WorkspaceInner />
+    </LayoutProvider>
+  );
+}
+
+function WorkspaceInner() {
+  const layout = useLayout();
   const { runs, loading, error: runsError, createRun, patchRun } = useRuns();
-  const [selectedRunId, setSelectedRunId] = React.useState<string | null>(null);
+  // The center's active tab is the selected run — the single live stream.
+  const selectedRunId = layout.activeTab;
   const [creating, setCreating] = React.useState(false);
   // The first prompt of a new production, shown optimistically while the run is
   // being created (before its id — and therefore its stream — exists).
   const [pendingFirstPrompt, setPendingFirstPrompt] = React.useState<string | null>(null);
-  const [activePanel, setActivePanel] = React.useState<SidePanel | null>(null);
-  const [libraryOpen, setLibraryOpen] = React.useState(false);
-  // Mount the lazy Library only after its first open, then keep it alive.
-  const [libraryMounted, setLibraryMounted] = React.useState(false);
-  const openLibrary = React.useCallback(() => {
-    setLibraryMounted(true);
-    setLibraryOpen(true);
-  }, []);
   const [briefKey, setBriefKey] = React.useState(0);
-
-  const togglePanel = (panel: SidePanel) =>
-    setActivePanel((current) => (current === panel ? null : panel));
 
   // Stable callback so the run stream isn't re-subscribed on every render.
   const onBriefUpdated = React.useCallback(() => setBriefKey((k) => k + 1), []);
@@ -55,32 +46,19 @@ export function DirectorWorkspace() {
     onBriefUpdated,
     initialPendingPrompt: pendingFirstPrompt,
   });
-  const { brief } = useBrief(selectedRunId, briefKey);
+  const { brief, loading: briefLoading } = useBrief(selectedRunId, briefKey);
 
-  // Once the run exists, useRun owns the optimistic bubble (seeded from the
-  // prompt above); clear the workspace copy so it doesn't double-render.
+  // Once the run exists, useRun owns the optimistic bubble; clear our copy.
   React.useEffect(() => {
     if (selectedRunId) setPendingFirstPrompt(null);
   }, [selectedRunId]);
 
-  React.useEffect(() => {
-    if (run) console.info(`[DESKTOP:workspace] run title changed → "${run.title}" (id=${run.id} status=${run.status})`);
-  }, [run?.title, run?.id, run?.status]);
-
-  // Mount the lazy References canvas only after its first open, then keep it
-  // alive so reopening is instant and the slide transition stays smooth.
-  const [referencesMounted, setReferencesMounted] = React.useState(false);
-  React.useEffect(() => {
-    if (activePanel === "references") setReferencesMounted(true);
-  }, [activePanel]);
-
   async function startNewProduction(prompt: string) {
-    // Show the prompt instantly — don't wait on the create round-trip.
     setPendingFirstPrompt(prompt);
     setCreating(true);
     try {
       const created = await createRun({ prompt });
-      setSelectedRunId(created.id);
+      layout.openTab(created.id);
     } catch (err) {
       setPendingFirstPrompt(null);
       throw err;
@@ -89,9 +67,6 @@ export function DirectorWorkspace() {
     }
   }
 
-  // While a brand-new run is still being created we have no run id (and no
-  // stream) yet — render the prompt the user just sent so the screen reacts
-  // immediately instead of sitting on the empty state.
   const inConversation = Boolean(selectedRunId || pendingFirstPrompt);
   const LOADING_ITEM: StreamItem = {
     kind: "activity",
@@ -102,15 +77,14 @@ export function DirectorWorkspace() {
     timestamp: new Date().toISOString(),
   };
 
-  // Show the loading spinner in the transcript as soon as the user sends:
-  // - `creating`: POST is in flight (no runId yet)
-  // - `isRunning`: run exists but no agent content arrived yet
   const agentIsWorking =
     creating ||
     (isRunning && !items.some((i) => i.kind === "message" || i.kind === "tool-generation" || i.kind === "activity"));
 
   const conversationItems: StreamItem[] = selectedRunId
-    ? agentIsWorking ? [...items, LOADING_ITEM] : items
+    ? agentIsWorking
+      ? [...items, LOADING_ITEM]
+      : items
     : pendingFirstPrompt
       ? [
           { kind: "user", id: "__pending_first__", text: pendingFirstPrompt, timestamp: new Date().toISOString() },
@@ -118,114 +92,60 @@ export function DirectorWorkspace() {
         ]
       : [];
 
-  const composerDisabled = isRunning || sendState === "sending" || creating;
+  const composerBusy = isRunning || sendState === "sending" || creating;
+
+  // Open runs → tab descriptors (skipping any ids whose run has since vanished).
+  const tabItems: TabItem[] = layout.tabs
+    .map((id) => runs.find((r) => r.id === id))
+    .filter((r): r is DirectorRun => Boolean(r))
+    .map((r) => ({ id: r.id, label: r.title || "Untitled production", icon: "timeline" }));
+  const compareRunId = layout.split && runs.some((r) => r.id === layout.split) ? layout.split : null;
 
   return (
-    <div className="flex h-full min-h-0">
-      <RunSidebar
-        runs={runs}
-        loading={loading}
-        error={runsError}
-        selectedRunId={selectedRunId}
-        onSelect={setSelectedRunId}
-        onNew={() => setSelectedRunId(null)}
-        onOpenLibrary={openLibrary}
-      />
-
-      <main className="flex min-w-0 flex-1 flex-col bg-surface-0">
-        {inConversation ? (
-          <>
-            <div
-              data-tauri-drag-region
-              className="flex h-12 shrink-0 items-center justify-between gap-2 bg-material-toolbar px-4 shadow-[inset_0_-0.5px_0_var(--separator)]"
-            >
-              <span className="min-w-0 truncate text-sm font-medium text-text">{run?.title ?? "Production"}</span>
-              <div className="no-drag flex shrink-0 gap-1">
-                <Button
-                  size="sm"
-                  variant={activePanel === "references" ? "secondary" : "ghost"}
-                  onClick={() => togglePanel("references")}
-                  disabled={!selectedRunId}
-                >
-                  References
-                </Button>
-                <Button
-                  size="sm"
-                  variant={activePanel === "timeline" ? "secondary" : "ghost"}
-                  onClick={() => togglePanel("timeline")}
-                  disabled={!selectedRunId}
-                >
-                  Timeline
-                </Button>
-              </div>
-            </div>
-            {error && (
-              <div className="bg-danger/10 px-4 py-2 text-center text-xs text-danger">{error}</div>
-            )}
-            <ConversationView items={conversationItems} onSend={send} />
-            <Composer
+    <AppLayout
+      sidebar={
+        <RunSidebar
+          runs={runs}
+          loading={loading}
+          error={runsError}
+          selectedRunId={selectedRunId}
+          onSelect={layout.openTab}
+          onNew={layout.newTab}
+          onOpenLibrary={() => layout.toggle("library")}
+          openIds={layout.tabs}
+          onOpenToSide={layout.openToSide}
+          onCloseTab={layout.closeTab}
+        />
+      }
+      center={
+        <CenterHost
+          tabs={tabItems}
+          activeId={selectedRunId}
+          onActivate={layout.activateTab}
+          onClose={layout.closeTab}
+          onNew={layout.newTab}
+          compareRunId={compareRunId}
+          onCloseCompare={layout.closeSplit}
+          onComparePatch={patchRun}
+          primary={
+            <WorkspacePane
+              inConversation={inConversation}
+              hasRun={Boolean(selectedRunId)}
+              runTitle={run?.title}
+              items={conversationItems}
               onSend={send}
-              disabled={composerDisabled}
-              busy={isRunning || sendState === "sending" || creating}
-              placeholder={
-                creating || isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`
-              }
+              onStart={startNewProduction}
+              starting={creating}
+              composerDisabled={composerBusy}
+              composerBusy={composerBusy}
+              placeholder={creating || isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`}
+              error={error}
             />
-          </>
-        ) : (
-          <EmptyState onStart={startNewProduction} busy={creating} />
-        )}
-      </main>
-
-      {/* References and Timeline both open as slide-over overlays (the canvas
-          experience) rather than a narrow side panel. */}
-      {selectedRunId && (
-        <>
-          {referencesMounted && (
-            <React.Suspense fallback={null}>
-              <AssetsPanel
-                runId={selectedRunId}
-                isOpen={activePanel === "references"}
-                onClose={() => setActivePanel(null)}
-                brief={brief}
-              />
-            </React.Suspense>
-          )}
-          <TimelinePanel
-            brief={brief}
-            items={items}
-            isOpen={activePanel === "timeline"}
-            onClose={() => setActivePanel(null)}
-          />
-        </>
-      )}
-
-      {/* Library is user-scoped, so it lives outside the run-gated panels. */}
-      {libraryMounted && (
-        <React.Suspense fallback={null}>
-          <LibraryPanel isOpen={libraryOpen} onClose={() => setLibraryOpen(false)} />
-        </React.Suspense>
-      )}
-    </div>
-  );
-}
-
-function EmptyState({ onStart, busy }: { onStart: (prompt: string) => void; busy: boolean }) {
-  return (
-    <div className="flex flex-1 flex-col">
-      <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-        <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.22em] text-fg-subtle">
-          WM Studio · Director
-        </p>
-        <h2 className="max-w-2xl text-4xl font-semibold leading-[1.05] tracking-tight text-fg">
-          What are we making today?
-        </h2>
-        <p className="mt-4 max-w-md text-sm leading-relaxed text-fg-muted">
-          Describe a video, a campaign, or a scene. Director plans the production, develops the
-          world, and generates it with you — one shot at a time.
-        </p>
-      </div>
-      <Composer onSend={onStart} disabled={busy} busy={busy} />
-    </div>
+          }
+        />
+      }
+      dock={selectedRunId ? <InspectorDock brief={brief} loading={briefLoading} /> : null}
+      overlays={<WorkspaceOverlays runId={selectedRunId} brief={brief} items={items} />}
+    />
   );
 }
