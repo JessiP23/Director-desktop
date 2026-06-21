@@ -77,6 +77,17 @@ export function DirectorWorkspace() {
       : [];
   const composerBusy = isRunning || sendState === "sending" || creating;
 
+  // Estimated context-window usage (chars/4 vs the agent's 30k history budget),
+  // matching the web app's indicator. Computed from the real transcript.
+  const usedTokens = React.useMemo(
+    () =>
+      items.reduce((sum, item) => {
+        const text = (item.kind === "user" || item.kind === "message") ? item.text : "";
+        return sum + (text ? Math.ceil(text.length / 4) : 0);
+      }, 0),
+    [items],
+  );
+
   return (
     <PalmierShell
       inEditor={inEditor}
@@ -104,6 +115,7 @@ export function DirectorWorkspace() {
           placeholder={creating || isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`}
           error={error}
           onBack={() => setSelectedRunId(null)}
+          contextUsage={{ usedTokens, budgetTokens: 30_000 }}
         />
       }
       media={<MediaDock runId={selectedRunId} brief={brief} briefLoading={briefLoading} />}

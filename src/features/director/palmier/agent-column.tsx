@@ -16,6 +16,7 @@ export function AgentColumn({
   placeholder,
   error,
   onBack,
+  contextUsage,
 }: {
   runTitle?: string;
   items: StreamItem[];
@@ -25,6 +26,7 @@ export function AgentColumn({
   placeholder: string;
   error?: string | null;
   onBack: () => void;
+  contextUsage?: { usedTokens: number; budgetTokens: number };
 }) {
   return (
     <PanelShell>
@@ -38,7 +40,7 @@ export function AgentColumn({
         </div>
       )}
       <ConversationView items={items} onSend={onSend} />
-      <Composer onSend={onSend} disabled={composerDisabled} busy={composerBusy} placeholder={placeholder} />
+      <Composer onSend={onSend} disabled={composerDisabled} busy={composerBusy} placeholder={placeholder} contextUsage={contextUsage} />
     </PanelShell>
   );
 }

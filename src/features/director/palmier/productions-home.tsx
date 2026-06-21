@@ -33,7 +33,8 @@ export function ProductionsHome({
 }) {
   return (
     <div className="flex h-full flex-col" style={{ background: "var(--pm-bg-base)" }}>
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-7 px-6 py-10">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-7 px-6 py-10">
         <div className="text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.22em]" style={{ color: "var(--pm-text-muted)" }}>WM Studio · Director</p>
           <h1 className="mt-2 text-[28px] font-semibold tracking-tight" style={{ color: "var(--pm-text-primary)" }}>What are we making today?</h1>
@@ -68,8 +69,9 @@ export function ProductionsHome({
             </div>
           </div>
         ) : null}
+        </div>
       </div>
-      <div className="mx-auto w-full max-w-3xl px-6 pb-6">
+      <div className="mx-auto w-full max-w-3xl shrink-0 px-6 pb-6">
         <Composer onSend={onStart} disabled={creating} busy={creating} placeholder="Describe the production you want to create…" />
       </div>
     </div>
