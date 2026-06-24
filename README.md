@@ -165,3 +165,21 @@ conversation, generation/confirmation cards. Next, in rough order:
 5. **Windows polish + code signing**, then ship.
 
 See `../DIRECTOR_DESKTOP_SPRINT.md` and `../DIRECTOR_DESKTOP_FEATURES.md`.
+
+
+
+
+## Commands to create and buidl the desktop app
+cd /Users/jessipavia/wm/director-desktop
+pnpm tauri build --bundles dmg --config src-tauri/tauri.macos.conf.json
+
+
+## Command to recreate dmg 
+hdiutil create -volname Director \
+  -srcfolder /tmp/director-dmg-root \
+  -ov -format UDZO \
+  src-tauri/target/release/bundle/dmg/Director_0.1.0_aarch64.dmg
+
+
+## run script to make dmg and uplod to githhub
+pnpm release:github

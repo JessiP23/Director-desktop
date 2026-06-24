@@ -8,6 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
+    "release:dmg": "bash scripts/release-dmg.sh",
+    "release:github": "bash scripts/release-dmg.sh --upload",
     "typecheck": "tsc --noEmit",
     "smoke": "node --env-file=.env.local scripts/smoke.mjs"
   },
