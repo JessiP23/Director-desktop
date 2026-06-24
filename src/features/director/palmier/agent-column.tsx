@@ -1,5 +1,6 @@
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { PalmierIconButton, PanelHeaderBar, PanelShell } from "@/components/palmier";
+import type { DirectorQuality } from "@/lib/director/contract/director";
 import type { StreamItem } from "@/lib/director/stream";
 import { Composer } from "../composer";
 import { ConversationView } from "../conversation-view";
@@ -18,6 +19,8 @@ export function AgentColumn({
   error,
   onBack,
   contextUsage,
+  quality,
+  onQualityChange,
   rightOpen,
   onToggleRight,
 }: {
@@ -30,6 +33,8 @@ export function AgentColumn({
   error?: string | null;
   onBack: () => void;
   contextUsage?: { usedTokens: number; budgetTokens: number };
+  quality: DirectorQuality;
+  onQualityChange: (value: DirectorQuality) => void;
   /** Whether the right side (media/preview/inspector/timeline) is open. */
   rightOpen: boolean;
   onToggleRight: () => void;
@@ -54,7 +59,15 @@ export function AgentColumn({
         </div>
       )}
       <ConversationView items={items} onSend={onSend} />
-      <Composer onSend={onSend} disabled={composerDisabled} busy={composerBusy} placeholder={placeholder} contextUsage={contextUsage} />
+      <Composer
+        onSend={onSend}
+        disabled={composerDisabled}
+        busy={composerBusy}
+        placeholder={placeholder}
+        contextUsage={contextUsage}
+        quality={quality}
+        onQualityChange={onQualityChange}
+      />
     </PanelShell>
   );
 }

@@ -9,17 +9,39 @@ const TABS: RailTab[] = [
   { id: "references", label: "References", icon: "references" },
   { id: "library", label: "Library", icon: "library" },
   { id: "brief", label: "Brief", icon: "notes" },
+  { id: "director", label: "Director", icon: "video" },
 ];
 
 /** The Palmier media dock: a 38px icon rail (References / Library / Brief) with
  *  the active tab's content beside it. Hosts the existing surfaces unchanged. */
-export function MediaDock({ runId, brief, briefLoading }: { runId: string | null; brief: DirectorBrief | null; briefLoading: boolean }) {
+export function MediaDock({
+  runId,
+  brief,
+  briefLoading,
+  onOpenEditor,
+}: {
+  runId: string | null;
+  brief: DirectorBrief | null;
+  briefLoading: boolean;
+  onOpenEditor: () => void;
+}) {
   const [tab, setTab] = React.useState("references");
+  const handleSelect = React.useCallback(
+    (id: string) => {
+      if (id === "director") {
+        onOpenEditor();
+        return;
+      }
+      setTab(id);
+    },
+    [onOpenEditor],
+  );
+
   return (
     <PanelShell>
       <PanelHeaderBar title={TABS.find((t) => t.id === tab)?.label} />
       <div className="flex min-h-0 flex-1">
-        <IconRail tabs={TABS} activeId={tab} onSelect={setTab} />
+        <IconRail tabs={TABS} activeId={tab} onSelect={handleSelect} />
         <div className="flex min-h-0 flex-1 flex-col">
           {tab === "references" && <ReferencesContent runId={runId} brief={brief} />}
           {tab === "library" && <LibraryContent />}

@@ -7,6 +7,7 @@ import { apiClient, buildAuthorizedRequest } from "@/lib/api/client";
 import {
   AUTO_MODEL_ID,
   type DirectorEvent,
+  type DirectorModelId,
   type DirectorReference,
   type DirectorRun,
   type DirectorRunMode,
@@ -20,6 +21,7 @@ export type CreateRunPayload = {
   prompt: string;
   references?: DirectorReference[];
   mode?: DirectorRunMode;
+  model?: DirectorModelId;
   autoProceed?: boolean;
   quality?: DirectorQuality;
 };
@@ -27,6 +29,7 @@ export type CreateRunPayload = {
 export type ContinueRunPayload = {
   prompt: string;
   references?: DirectorReference[];
+  model?: DirectorModelId;
   autoProceed?: boolean;
   quality?: DirectorQuality;
 };

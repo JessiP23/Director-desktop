@@ -1,7 +1,7 @@
 import { Spinner } from "@/components/ui";
 import { StarterPromptCard } from "@/components/palmier";
 import { cn } from "@/lib/utils/cn";
-import type { DirectorRun, DirectorRunStatus } from "@/lib/director/contract/director";
+import type { DirectorQuality, DirectorRun, DirectorRunStatus } from "@/lib/director/contract/director";
 import { Composer } from "../composer";
 
 const statusDot: Record<DirectorRunStatus, string> = {
@@ -23,6 +23,8 @@ export function ProductionsHome({
   creating,
   onStart,
   onSelect,
+  quality,
+  onQualityChange,
 }: {
   runs: DirectorRun[];
   loading: boolean;
@@ -30,6 +32,8 @@ export function ProductionsHome({
   creating: boolean;
   onStart: (prompt: string) => void;
   onSelect: (id: string) => void;
+  quality: DirectorQuality;
+  onQualityChange: (value: DirectorQuality) => void;
 }) {
   return (
     <div className="flex h-full flex-col" style={{ background: "var(--pm-bg-base)" }}>
@@ -72,7 +76,14 @@ export function ProductionsHome({
         </div>
       </div>
       <div className="mx-auto w-full max-w-3xl shrink-0 px-6 pb-6">
-        <Composer onSend={onStart} disabled={creating} busy={creating} placeholder="Describe the production you want to create…" />
+        <Composer
+          onSend={onStart}
+          disabled={creating}
+          busy={creating}
+          placeholder="Describe the production you want to create…"
+          quality={quality}
+          onQualityChange={onQualityChange}
+        />
       </div>
     </div>
   );

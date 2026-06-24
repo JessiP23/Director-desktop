@@ -5,14 +5,20 @@ import { PalmierIconButton, PalmierToolbar, ToolbarDivider, ToolbarGroup } from 
 
 export type Preset = "default" | "media" | "vertical";
 
-type Panes = { media: React.ReactNode; preview: React.ReactNode; inspector: React.ReactNode; timeline: React.ReactNode };
+type Panes = { media: React.ReactNode; preview: React.ReactNode; inspector: React.ReactNode; timeline: React.ReactNode; editor: React.ReactNode };
 
 const H = (props: React.ComponentProps<typeof SplitPane>) => <SplitPane direction="horizontal" className="flex-1" {...props} />;
 const V = (props: React.ComponentProps<typeof SplitPane>) => <SplitPane direction="vertical" className="flex-1" {...props} />;
 
 /** The preset root (EditorView.swift): media/preview/inspector/timeline arranged
  *  per the chosen preset, with persisted resizable splits. */
-function PresetRoot({ preset, media, preview, inspector, timeline }: { preset: Preset } & Panes) {
+function PresetRoot({
+  preset,
+  media,
+  preview,
+  inspector,
+  timeline,
+}: { preset: Preset } & Omit<Panes, "editor">) {
   const pi = (
     <H defaultSize={66} minFirst={320} minSecond={200} storageKey="pm.preview-inspector">
       {preview}
@@ -82,6 +88,7 @@ export function PalmierShell({
   preview,
   inspector,
   timeline,
+  editor,
 }: {
   inEditor: boolean;
   /** Whether the whole right side (media/preview/inspector/timeline) is shown.
@@ -99,7 +106,7 @@ export function PalmierShell({
 } & { agent: React.ReactNode } & Panes) {
   if (!inEditor) return <div className="h-full">{home}</div>;
 
-  const root = <PresetRoot preset={preset} media={media} preview={preview} inspector={inspector} timeline={timeline} />;
+  const root = editorActive ? editor : <PresetRoot preset={preset} media={media} preview={preview} inspector={inspector} timeline={timeline} />;
 
   return (
     <div className="flex h-full min-h-0 flex-col" style={{ background: "var(--pm-bg-base)" }}>

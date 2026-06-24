@@ -10,6 +10,7 @@ import { TimelineDock } from "./palmier/timeline-dock";
 import { useBrief } from "./use-brief";
 import { useRun } from "./use-run";
 import { useRuns } from "./use-runs";
+import type { DirectorQuality } from "@/lib/director/contract/director";
 import { EditorPanel, collectEditorClips } from "./editor/components/editor-view";
 import { latestEditorPlan, latestTimelineSyncVersion } from "./editor/lib/editor-plan-apply";
 import { uploadAttachments } from "./editor/lib/upload-attachments";
@@ -29,6 +30,7 @@ export function DirectorWorkspace() {
   const [briefKey, setBriefKey] = React.useState(0);
   const [agentOpen, setAgentOpen] = React.useState(true);
   const [preset, setPreset] = React.useState<Preset>("default");
+  const [quality, setQuality] = React.useState<DirectorQuality>("premium");
   // The whole right side starts closed → just the chatbot. Toggled from the
   // agent header. `view` swaps the preview pane between the preview and the editor.
   const [rightOpen, setRightOpen] = React.useState(false);
@@ -50,7 +52,7 @@ export function DirectorWorkspace() {
     setPendingFirstPrompt(prompt);
     setCreating(true);
     try {
-      const created = await createRun({ prompt });
+      const created = await createRun({ prompt, quality });
       setSelectedRunId(created.id);
     } catch (err) {
       setPendingFirstPrompt(null);
@@ -119,38 +121,39 @@ export function DirectorWorkspace() {
           creating={creating}
           onStart={startNewProduction}
           onSelect={setSelectedRunId}
+          quality={quality}
+          onQualityChange={setQuality}
         />
       }
       agent={
         <AgentColumn
           runTitle={run?.title}
           items={conversationItems}
-          onSend={send}
+          onSend={(text) => send(text, { quality })}
           composerDisabled={composerBusy}
           composerBusy={composerBusy}
           placeholder={creating || isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`}
           error={error}
           onBack={() => setSelectedRunId(null)}
           contextUsage={{ usedTokens, budgetTokens: 30_000 }}
+          quality={quality}
+          onQualityChange={setQuality}
           rightOpen={rightOpen}
           onToggleRight={() => setRightOpen((v) => !v)}
         />
       }
-      media={<MediaDock runId={selectedRunId} brief={brief} briefLoading={briefLoading} />}
-      preview={
-        view === "editor" ? (
-          <EditorPanel
-            isOpen
-            onClose={() => setView("preview")}
-            runId={selectedRunId}
-            clips={editorClips}
-            onUploadFiles={uploadAttachments}
-            agentPlan={editorPlan}
-            timelineSyncToken={timelineSyncToken}
-          />
-        ) : (
-          <PreviewPanel items={items} />
-        )
+      media={<MediaDock runId={selectedRunId} brief={brief} briefLoading={briefLoading} onOpenEditor={() => setView("editor")} />}
+      preview={<PreviewPanel items={items} />}
+      editor={
+        <EditorPanel
+          isOpen={view === "editor"}
+          onClose={() => setView("preview")}
+          runId={selectedRunId}
+          clips={editorClips}
+          onUploadFiles={uploadAttachments}
+          agentPlan={editorPlan}
+          timelineSyncToken={timelineSyncToken}
+        />
       }
       inspector={<InspectorPanel run={run} brief={brief} />}
       timeline={<TimelineDock brief={brief} items={items} />}

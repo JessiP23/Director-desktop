@@ -1,5 +1,7 @@
 import * as React from "react";
-import { IconButton, Spinner, Tooltip } from "@/components/ui";
+import { Icon, IconButton, Spinner, Tooltip } from "@/components/ui";
+import type { DirectorQuality } from "@/lib/director/contract/director";
+import { cn } from "@/lib/utils/cn";
 
 const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k` : String(Math.round(n)));
 
@@ -23,6 +25,113 @@ function ContextRing({ used, budget }: { used: number; budget: number }) {
   );
 }
 
+function AutoQualityLabel({ quality }: { quality: DirectorQuality }) {
+  if (quality !== "premium") {
+    return <span className="font-semibold text-text-tertiary">Auto</span>;
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1 font-semibold">
+      <span className="text-text-tertiary">Auto</span>
+      <span
+        className={cn(
+          "inline-block bg-clip-text text-transparent motion-reduce:animate-none",
+          "animate-[director-max-label-shimmer_7s_ease-in-out_infinite] bg-[length:300%_100%]",
+          "bg-[linear-gradient(90deg,var(--text-tertiary),var(--text),var(--text-tertiary))]",
+        )}
+      >
+        Max
+      </span>
+    </span>
+  );
+}
+
+function AutoQualitySelect({
+  quality,
+  onChange,
+  disabled,
+}: {
+  quality: DirectorQuality;
+  onChange: (value: DirectorQuality) => void;
+  disabled?: boolean;
+}) {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleClick = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) setIsOpen(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [isOpen]);
+
+  const options = [
+    { value: "economic", label: "Auto", description: "Fast default generation" },
+    { value: "premium", label: "Auto Max", description: "Higher-quality generation" },
+  ] as const;
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <Tooltip label="Auto mode">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setIsOpen((current) => !current)}
+          className={cn(
+            "inline-flex h-8 items-center gap-1.5 rounded-[10px] px-2.5 text-xs transition-colors duration-150 ease-out focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+            isOpen ? "bg-fill text-text" : "text-text-secondary hover:bg-fill hover:text-text",
+          )}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+        >
+          <AutoQualityLabel quality={quality} />
+          <Icon name="chevronDown" size={13} className="text-text-quaternary" />
+        </button>
+      </Tooltip>
+      {isOpen && (
+        <div
+          className="absolute bottom-full left-0 z-[100] mb-1.5 w-64 overflow-hidden rounded-[14px] border border-separator bg-surface-1 shadow-[var(--shadow-pop)]"
+          role="menu"
+          aria-label="Auto mode"
+        >
+          <ul className="px-1.5 py-1">
+            {options.map((option) => {
+              const isActive = option.value === quality;
+              return (
+                <li key={option.value}>
+                  <button
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={isActive}
+                    onClick={() => {
+                      onChange(option.value);
+                      setIsOpen(false);
+                    }}
+                    className={cn(
+                      "flex w-full items-start gap-2.5 rounded-[10px] px-3 py-2.5 text-left transition-colors duration-150 ease-out",
+                      isActive ? "bg-fill text-text" : "text-text-tertiary hover:bg-fill hover:text-text-secondary",
+                    )}
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13px] font-medium">{option.label}</span>
+                      <span className="mt-0.5 block text-[11px] leading-4 text-text-quaternary">
+                        {option.description}
+                      </span>
+                    </span>
+                    {isActive && <Icon name="check" size={14} className="mt-0.5 shrink-0 text-accent" />}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /**
  * The prompt input. Auto-grows, submits on Enter (Shift+Enter for newline),
  * and disables while the run is responding. Attachments/drag-drop are a planned
@@ -34,12 +143,16 @@ export function Composer({
   busy,
   placeholder = "Describe the production you want to create…",
   contextUsage,
+  quality = "premium",
+  onQualityChange,
 }: {
   onSend: (text: string) => void;
   disabled?: boolean;
   busy?: boolean;
   placeholder?: string;
   contextUsage?: { usedTokens: number; budgetTokens: number };
+  quality?: DirectorQuality;
+  onQualityChange?: (value: DirectorQuality) => void;
 }) {
   const [value, setValue] = React.useState("");
   const ref = React.useRef<HTMLTextAreaElement>(null);
@@ -84,6 +197,11 @@ export function Composer({
         {contextUsage && contextUsage.usedTokens > 0 && (
           <span className="mb-1 self-center">
             <ContextRing used={contextUsage.usedTokens} budget={contextUsage.budgetTokens} />
+          </span>
+        )}
+        {onQualityChange && (
+          <span className="mb-0.5 self-center">
+            <AutoQualitySelect quality={quality} onChange={onQualityChange} disabled={disabled || busy} />
           </span>
         )}
         {busy ? (
