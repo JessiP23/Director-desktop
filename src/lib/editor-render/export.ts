@@ -176,7 +176,7 @@ export async function exportTimelineToMp4(timeline: Timeline, options: ExportOpt
   canvas.height = height
   const ctx = canvas.getContext("2d") as unknown as Ctx2D
 
-  const pool = new MediaPool()
+  const pool = new MediaPool({ crossOrigin: true })
   const specs: MediaSpec[] = Object.values(proxied.media).map((m) => ({
     url: m.url,
     kind: m.kind === "image" ? "image" : "video",
