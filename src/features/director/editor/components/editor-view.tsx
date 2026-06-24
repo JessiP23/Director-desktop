@@ -410,6 +410,7 @@ export function EditorPanel({ clips, isOpen, onClose, runId, onUploadFiles, agen
   // imported lazily at click time to keep it out of the page bundle.
   const [exportProgress, setExportProgress] = React.useState<{ frame: number; total: number } | null>(null)
   const [exportError, setExportError] = React.useState<string | null>(null)
+  const [exportDownload, setExportDownload] = React.useState<{ filename: string; path?: string } | null>(null)
   const exportAbortRef = React.useRef<AbortController | null>(null)
   const isExporting = exportProgress !== null
 
@@ -429,6 +430,7 @@ export function EditorPanel({ clips, isOpen, onClose, runId, onUploadFiles, agen
     const controller = new AbortController()
     exportAbortRef.current = controller
     setExportError(null)
+    setExportDownload(null)
     setExportProgress({ frame: 0, total: 1 })
     try {
       const { exportTimelineToMp4 } = await import("@/lib/editor-render/export")
@@ -441,7 +443,7 @@ export function EditorPanel({ clips, isOpen, onClose, runId, onUploadFiles, agen
         const { invoke } = await import("@tauri-apps/api/core")
         const bytes = Array.from(new Uint8Array(await blob.arrayBuffer()))
         const path = await invoke<string>("save_export_to_downloads", { filename, bytes })
-        setExportError(`Saved to ${path}`)
+        setExportDownload({ filename: path.split(/[\\/]/).pop() || filename, path })
       } catch {
         const url = URL.createObjectURL(blob)
         const anchor = document.createElement("a")
@@ -453,6 +455,7 @@ export function EditorPanel({ clips, isOpen, onClose, runId, onUploadFiles, agen
         anchor.click()
         anchor.remove()
         window.setTimeout(() => URL.revokeObjectURL(url), 30_000)
+        setExportDownload({ filename })
       }
     } catch (err) {
       if ((err as { name?: string })?.name !== "AbortError") {
@@ -463,6 +466,16 @@ export function EditorPanel({ clips, isOpen, onClose, runId, onUploadFiles, agen
       exportAbortRef.current = null
     }
   }, [buildCanonicalTimeline, persistedRef, runId])
+
+  const revealDownload = React.useCallback(async () => {
+    if (!exportDownload?.path) return
+    try {
+      const { revealItemInDir } = await import("@tauri-apps/plugin-opener")
+      await revealItemInDir(exportDownload.path)
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "Could not show downloaded file")
+    }
+  }, [exportDownload])
 
   // Generated images are source material (keyframes, storyboards, casting), not
   // automatic edits. Keep them in the clip picker and auto-place only native
@@ -1009,6 +1022,31 @@ export function EditorPanel({ clips, isOpen, onClose, runId, onUploadFiles, agen
           </button>
         </div>
       </div>
+      {exportDownload && (
+        <div className="mx-5 mb-2 flex shrink-0 items-center gap-2 rounded-[12px] border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[12px] text-emerald-100">
+          <ArrowDownTrayIcon className="h-4 w-4 shrink-0 text-emerald-200" />
+          <span className="min-w-0 flex-1 truncate">
+            Downloaded <span className="font-medium text-emerald-50">{exportDownload.filename}</span>
+          </span>
+          {exportDownload.path && (
+            <button
+              type="button"
+              onClick={revealDownload}
+              className="shrink-0 rounded-full bg-emerald-300/15 px-2.5 py-1 text-[11px] font-medium text-emerald-50 transition-colors hover:bg-emerald-300/25"
+            >
+              Show
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setExportDownload(null)}
+            aria-label="Dismiss downloaded item"
+            className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-emerald-100/70 transition-colors hover:bg-emerald-300/15 hover:text-emerald-50"
+          >
+            <XMarkIcon className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Preview — fills the space above the timeline; tracks scroll internally
           so adding/removing them never resizes the preview. */}
