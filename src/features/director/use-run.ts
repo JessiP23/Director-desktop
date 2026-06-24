@@ -192,5 +192,5 @@ export function useRun(
     return base;
   }, [events, pendingPrompt]);
 
-  return { run, items, send, cancel, sendState, isRunning, error };
+  return { run, items, events, send, cancel, sendState, isRunning, error };
 }

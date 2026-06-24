@@ -123,6 +123,7 @@ export type DirectorEventType =
   | "video.production.asset.generated"
   | "video.production.critique"
   | "video.production.timeline.updated"
+  | "video.production.timeline.synced"
   | "video.production.memory.write";
 
 export type DirectorEvent = {

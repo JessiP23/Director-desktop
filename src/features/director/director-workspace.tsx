@@ -10,6 +10,9 @@ import { TimelineDock } from "./palmier/timeline-dock";
 import { useBrief } from "./use-brief";
 import { useRun } from "./use-run";
 import { useRuns } from "./use-runs";
+import { EditorPanel, collectEditorClips } from "./editor/components/editor-view";
+import { latestEditorPlan, latestTimelineSyncVersion } from "./editor/lib/editor-plan-apply";
+import { uploadAttachments } from "./editor/lib/upload-attachments";
 
 /**
  * The Director cockpit, in Palmier's spatial model: a productions home that
@@ -26,9 +29,13 @@ export function DirectorWorkspace() {
   const [briefKey, setBriefKey] = React.useState(0);
   const [agentOpen, setAgentOpen] = React.useState(true);
   const [preset, setPreset] = React.useState<Preset>("default");
+  // The whole right side starts closed → just the chatbot. Toggled from the
+  // agent header. `view` swaps the preview pane between the preview and the editor.
+  const [rightOpen, setRightOpen] = React.useState(false);
+  const [view, setView] = React.useState<"preview" | "editor">("preview");
 
   const onBriefUpdated = React.useCallback(() => setBriefKey((k) => k + 1), []);
-  const { items, send, sendState, isRunning, run, error } = useRun(selectedRunId, {
+  const { items, events, send, sendState, isRunning, run, error } = useRun(selectedRunId, {
     onRunPatch: patchRun,
     onBriefUpdated,
     initialPendingPrompt: pendingFirstPrompt,
@@ -88,12 +95,21 @@ export function DirectorWorkspace() {
     [items],
   );
 
+  // Editor wiring: clips from the stream, the agent's latest montage plan + sync
+  // token from the raw events (drives the live agent-montage refetch).
+  const editorClips = React.useMemo(() => collectEditorClips(items), [items]);
+  const editorPlan = React.useMemo(() => latestEditorPlan(events), [events]);
+  const timelineSyncToken = React.useMemo(() => latestTimelineSyncVersion(events), [events]);
+
   return (
     <PalmierShell
       inEditor={inEditor}
+      rightOpen={rightOpen}
       agentOpen={agentOpen}
       preset={preset}
+      editorActive={view === "editor"}
       onToggleAgent={() => setAgentOpen((v) => !v)}
+      onToggleEditor={() => setView((v) => (v === "editor" ? "preview" : "editor"))}
       onPreset={setPreset}
       home={
         <ProductionsHome
@@ -116,10 +132,26 @@ export function DirectorWorkspace() {
           error={error}
           onBack={() => setSelectedRunId(null)}
           contextUsage={{ usedTokens, budgetTokens: 30_000 }}
+          rightOpen={rightOpen}
+          onToggleRight={() => setRightOpen((v) => !v)}
         />
       }
       media={<MediaDock runId={selectedRunId} brief={brief} briefLoading={briefLoading} />}
-      preview={<PreviewPanel items={items} />}
+      preview={
+        view === "editor" ? (
+          <EditorPanel
+            isOpen
+            onClose={() => setView("preview")}
+            runId={selectedRunId}
+            clips={editorClips}
+            onUploadFiles={uploadAttachments}
+            agentPlan={editorPlan}
+            timelineSyncToken={timelineSyncToken}
+          />
+        ) : (
+          <PreviewPanel items={items} />
+        )
+      }
       inspector={<InspectorPanel run={run} brief={brief} />}
       timeline={<TimelineDock brief={brief} items={items} />}
     />

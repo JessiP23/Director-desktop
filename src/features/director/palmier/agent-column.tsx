@@ -1,3 +1,4 @@
+import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { PalmierIconButton, PanelHeaderBar, PanelShell } from "@/components/palmier";
 import type { StreamItem } from "@/lib/director/stream";
 import { Composer } from "../composer";
@@ -17,6 +18,8 @@ export function AgentColumn({
   error,
   onBack,
   contextUsage,
+  rightOpen,
+  onToggleRight,
 }: {
   runTitle?: string;
   items: StreamItem[];
@@ -27,12 +30,23 @@ export function AgentColumn({
   error?: string | null;
   onBack: () => void;
   contextUsage?: { usedTokens: number; budgetTokens: number };
+  /** Whether the right side (media/preview/inspector/timeline) is open. */
+  rightOpen: boolean;
+  onToggleRight: () => void;
 }) {
   return (
     <PanelShell>
       <PanelHeaderBar
         title={runTitle ?? "Director"}
         leading={<PalmierIconButton name="chevronRight" label="Productions" className="rotate-180" onClick={onBack} />}
+        trailing={
+          <PalmierIconButton
+            icon={rightOpen ? PanelRightClose : PanelRightOpen}
+            label={rightOpen ? "Hide panels" : "Show panels"}
+            active={rightOpen}
+            onClick={onToggleRight}
+          />
+        }
       />
       {error && (
         <div className="px-3 py-2 text-center text-[11px]" style={{ color: "var(--pm-error)", background: "rgba(229,79,79,0.1)" }}>

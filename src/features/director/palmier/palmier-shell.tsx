@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Clapperboard } from "lucide-react";
 import { SplitPane } from "@/components/ui";
 import { PalmierIconButton, PalmierToolbar, ToolbarDivider, ToolbarGroup } from "@/components/palmier";
 
@@ -68,9 +69,12 @@ const PRESETS: { id: Preset; icon: "grid" | "sidebar" | "inspector"; label: stri
  */
 export function PalmierShell({
   inEditor,
+  rightOpen,
   agentOpen,
   preset,
+  editorActive,
   onToggleAgent,
+  onToggleEditor,
   onPreset,
   home,
   agent,
@@ -80,9 +84,16 @@ export function PalmierShell({
   timeline,
 }: {
   inEditor: boolean;
+  /** Whether the whole right side (media/preview/inspector/timeline) is shown.
+   *  When false, only the agent (chatbot) fills the window. Toggled from the
+   *  agent header (see AgentColumn). */
+  rightOpen: boolean;
   agentOpen: boolean;
   preset: Preset;
+  /** Whether the preview pane currently shows the full Editor (vs. the preview). */
+  editorActive: boolean;
   onToggleAgent: () => void;
+  onToggleEditor: () => void;
   onPreset: (p: Preset) => void;
   home: React.ReactNode;
 } & { agent: React.ReactNode } & Panes) {
@@ -92,17 +103,27 @@ export function PalmierShell({
 
   return (
     <div className="flex h-full min-h-0 flex-col" style={{ background: "var(--pm-bg-base)" }}>
-      <PalmierToolbar className="!h-[30px]">
-        <PalmierIconButton name="chat" label="Toggle chat" active={agentOpen} onClick={onToggleAgent} />
-        <ToolbarDivider />
-        <ToolbarGroup>
-          {PRESETS.map((p) => (
-            <PalmierIconButton key={p.id} name={p.icon} label={p.label} active={preset === p.id} onClick={() => onPreset(p.id)} />
-          ))}
-        </ToolbarGroup>
-      </PalmierToolbar>
+      {/* Toolbar only when the right side is open — the open/close control itself
+          lives in the agent header so it's reachable from the chatbot-only view. */}
+      {rightOpen && (
+        <PalmierToolbar className="!h-[30px]">
+          <PalmierIconButton name="chat" label="Toggle chat" active={agentOpen} onClick={onToggleAgent} />
+          <ToolbarDivider />
+          <ToolbarGroup>
+            {PRESETS.map((p) => (
+              <PalmierIconButton key={p.id} name={p.icon} label={p.label} active={preset === p.id} onClick={() => onPreset(p.id)} />
+            ))}
+          </ToolbarGroup>
+          <ToolbarDivider />
+          {/* Swap the preview pane to the full Editor (and back). */}
+          <PalmierIconButton icon={Clapperboard} label="Editor" active={editorActive} onClick={onToggleEditor} />
+        </PalmierToolbar>
+      )}
       <div className="flex min-h-0 flex-1">
-        {agentOpen ? (
+        {!rightOpen ? (
+          // Right side closed: the chatbot fills the window.
+          <div className="flex min-h-0 flex-1">{agent}</div>
+        ) : agentOpen ? (
           <SplitPane direction="horizontal" defaultSize={26} minFirst={240} minSecond={600} storageKey="pm.agent" className="flex-1">
             {agent}
             {root}
