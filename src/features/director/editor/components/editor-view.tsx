@@ -436,12 +436,24 @@ export function EditorPanel({ clips, isOpen, onClose, runId, onUploadFiles, agen
         signal: controller.signal,
         onProgress: (progress) => setExportProgress(progress),
       })
-      const url = URL.createObjectURL(blob)
-      const anchor = document.createElement("a")
-      anchor.href = url
-      anchor.download = `timeline-${runId ?? "export"}.mp4`
-      anchor.click()
-      URL.revokeObjectURL(url)
+      const filename = `timeline-${runId ?? "export"}.mp4`
+      try {
+        const { invoke } = await import("@tauri-apps/api/core")
+        const bytes = Array.from(new Uint8Array(await blob.arrayBuffer()))
+        const path = await invoke<string>("save_export_to_downloads", { filename, bytes })
+        setExportError(`Saved to ${path}`)
+      } catch {
+        const url = URL.createObjectURL(blob)
+        const anchor = document.createElement("a")
+        anchor.href = url
+        anchor.download = filename
+        anchor.rel = "noopener"
+        anchor.style.display = "none"
+        document.body.appendChild(anchor)
+        anchor.click()
+        anchor.remove()
+        window.setTimeout(() => URL.revokeObjectURL(url), 30_000)
+      }
     } catch (err) {
       if ((err as { name?: string })?.name !== "AbortError") {
         setExportError(err instanceof Error ? err.message : "Export failed")

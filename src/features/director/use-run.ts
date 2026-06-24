@@ -6,6 +6,17 @@ import { useDirectorRunStream } from "@/lib/director/use-director-run-stream";
 
 export type SendState = "idle" | "sending";
 
+function mergeEvents(...groups: DirectorEvent[][]): DirectorEvent[] {
+  const byId = new Map<string, DirectorEvent>();
+  for (const group of groups) {
+    for (const event of group) byId.set(event.id, event);
+  }
+  return [...byId.values()].sort((a, b) => {
+    const delta = Date.parse(a.timestamp) - Date.parse(b.timestamp);
+    return delta !== 0 ? delta : a.id.localeCompare(b.id);
+  });
+}
+
 /**
  * Owns a single run's conversation: loads the snapshot, subscribes to the live
  * SSE stream (which replays history then streams live turns), folds events into
@@ -123,9 +134,11 @@ export function useRun(
     let active = true;
     directorApi
       .getRun(runId)
-      .then(({ run: loaded }) => {
-        console.info(`[DESKTOP:run] getRun id=${loaded.id} title="${loaded.title}" status=${loaded.status}`);
-        if (active) setRun(loaded);
+      .then(({ run: loaded, events: loadedEvents }) => {
+        console.info(`[DESKTOP:run] getRun id=${loaded.id} title="${loaded.title}" status=${loaded.status} events=${loadedEvents.length}`);
+        if (!active) return;
+        setRun(loaded);
+        setEvents((current) => mergeEvents(loadedEvents, current));
       })
       .catch((err) => active && setError(err instanceof Error ? err.message : "Failed to load run"));
 

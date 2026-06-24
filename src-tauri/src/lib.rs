@@ -1,3 +1,4 @@
+mod export_file;
 mod secure_store;
 
 /// Apply real macOS window vibrancy (NSVisualEffect) behind the webview so the
@@ -34,6 +35,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            export_file::save_export_to_downloads,
             secure_store::secure_get,
             secure_store::secure_set,
             secure_store::secure_delete,
