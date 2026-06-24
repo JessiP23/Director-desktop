@@ -31,10 +31,29 @@ function clipsFromStream(items: StreamItem[]): Clip[] {
     }));
 }
 
+function mediaIdentity(url: string): string {
+  const [path] = url.split(/[?#]/);
+  const filename = path.split("/").pop() ?? url;
+  return filename.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
 function mergeClips(confirmed: Clip[], generated: Clip[]): Clip[] {
+  const generatedByIdentity = new Map(generated.map((clip) => [mediaIdentity(clip.url), clip]));
+  const usedGenerated = new Set<string>();
   const seen = new Set<string>();
   const merged: Clip[] = [];
-  for (const clip of [...confirmed, ...generated]) {
+  for (const clip of confirmed) {
+    const generatedMatch = generatedByIdentity.get(mediaIdentity(clip.url));
+    const resolved = generatedMatch
+      ? { ...clip, url: generatedMatch.url, kind: generatedMatch.kind, prompt: clip.prompt ?? generatedMatch.prompt }
+      : clip;
+    if (generatedMatch) usedGenerated.add(generatedMatch.id);
+    if (!resolved.url || seen.has(resolved.url)) continue;
+    seen.add(resolved.url);
+    merged.push(resolved);
+  }
+  for (const clip of generated) {
+    if (usedGenerated.has(clip.id)) continue;
     if (!clip.url || seen.has(clip.url)) continue;
     seen.add(clip.url);
     merged.push(clip);
