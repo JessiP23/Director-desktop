@@ -1,5 +1,12 @@
 import * as React from "react";
 import type { GenerationResultKind } from "@/lib/director/stream";
+import { config } from "@/lib/config";
+
+export function proxiedMediaUrl(url: string): string {
+  if (!/^https:\/\//i.test(url)) return url;
+  if (url.startsWith(`${config.apiBaseUrl}/api/editor/media-proxy`)) return url;
+  return `${config.apiBaseUrl}/api/editor/media-proxy?url=${encodeURIComponent(url)}`;
+}
 
 /**
  * Renders a generated asset. Images open a full-screen lightbox on click;
@@ -16,13 +23,15 @@ export function GenerationMedia({
   aspectRatio?: string;
 }) {
   const [zoomed, setZoomed] = React.useState(false);
+  const src = proxiedMediaUrl(url);
 
   if (kind === "video") {
     return (
       <video
-        src={url}
+        src={src}
         controls
         playsInline
+        preload="metadata"
         className="max-h-[28rem] w-full rounded-xl bg-black"
         style={aspectRatio ? { aspectRatio: aspectRatio.replace(":", " / ") } : undefined}
       />
@@ -30,7 +39,7 @@ export function GenerationMedia({
   }
 
   if (kind === "audio") {
-    return <audio src={url} controls className="w-full" />;
+    return <audio src={src} controls className="w-full" />;
   }
 
   return (
@@ -42,7 +51,7 @@ export function GenerationMedia({
         aria-label="Expand image"
       >
         <img
-          src={url}
+          src={src}
           alt="Generated frame"
           loading="lazy"
           className="max-h-[28rem] w-full object-contain"
@@ -57,7 +66,7 @@ export function GenerationMedia({
           role="dialog"
           aria-modal="true"
         >
-          <img src={url} alt="Generated frame" className="max-h-full max-w-full rounded-lg object-contain" />
+          <img src={src} alt="Generated frame" className="max-h-full max-w-full rounded-lg object-contain" />
           <button
             type="button"
             onClick={() => setZoomed(false)}

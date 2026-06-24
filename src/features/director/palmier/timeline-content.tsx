@@ -3,7 +3,7 @@ import type { DirectorBrief } from "@/lib/director/contract/brief";
 import { compareScriptReference } from "@/lib/director/production-timeline";
 import type { StreamItem } from "@/lib/director/stream";
 import { cn } from "@/lib/utils/cn";
-import { GenerationMedia } from "../media-view";
+import { GenerationMedia, proxiedMediaUrl } from "../media-view";
 
 type Clip = { id: string; label: string; url: string; kind: "image" | "video" | "audio" | "other"; prompt?: string; poster?: string };
 
@@ -21,7 +21,25 @@ function clipsFromBrief(brief: DirectorBrief | null): Clip[] {
 function clipsFromStream(items: StreamItem[]): Clip[] {
   return items
     .filter((i): i is Extract<StreamItem, { kind: "tool-generation" }> => i.kind === "tool-generation" && i.status === "completed" && Boolean(i.resultUrl))
-    .map((i, idx) => ({ id: i.id, label: i.toolName || `Asset ${idx + 1}`, url: i.resultUrl || "", kind: i.resultKind ?? kindFromUrl(i.resultUrl || ""), prompt: i.previewMessage, poster: i.resultKind === "video" ? i.referenceImageUrls?.[0] : undefined }));
+    .map((i, idx) => ({
+      id: i.id,
+      label: i.toolName || `Asset ${idx + 1}`,
+      url: i.resultUrl || "",
+      kind: i.resultKind ?? kindFromUrl(i.resultUrl || ""),
+      prompt: i.previewMessage,
+      poster: i.resultKind === "video" ? i.referenceImageUrls?.[0] : undefined,
+    }));
+}
+
+function mergeClips(confirmed: Clip[], generated: Clip[]): Clip[] {
+  const seen = new Set<string>();
+  const merged: Clip[] = [];
+  for (const clip of [...confirmed, ...generated]) {
+    if (!clip.url || seen.has(clip.url)) continue;
+    seen.add(clip.url);
+    merged.push(clip);
+  }
+  return merged;
 }
 
 /** Timeline content: confirmed clips in screenplay order — a master player +
@@ -29,7 +47,7 @@ function clipsFromStream(items: StreamItem[]): Clip[] {
 export function TimelineContent({ brief, items }: { brief: DirectorBrief | null; items: StreamItem[] }) {
   const clips = React.useMemo(() => {
     const confirmed = clipsFromBrief(brief);
-    return confirmed.length > 0 ? confirmed : clipsFromStream(items);
+    return mergeClips(confirmed, clipsFromStream(items));
   }, [brief, items]);
   const [selected, setSelected] = React.useState(0);
   React.useEffect(() => {
@@ -53,7 +71,7 @@ export function TimelineContent({ brief, items }: { brief: DirectorBrief | null;
                   className={cn("relative block aspect-video w-full overflow-hidden rounded-[var(--pm-r-xs)] text-left", i === selected ? "ring-1 ring-white/80" : "")}
                   style={{ background: "var(--pm-bg-prominent)" }}
                 >
-                  {poster ? <img src={poster} alt="" loading="lazy" decoding="async" className="size-full object-cover" /> : <span className="grid size-full place-items-center text-white/40">▶</span>}
+                  {poster ? <img src={proxiedMediaUrl(poster)} alt="" loading="lazy" decoding="async" className="size-full object-cover" /> : <span className="grid size-full place-items-center text-white/40">▶</span>}
                   <span className="absolute left-0.5 top-0.5 grid size-3.5 place-items-center rounded bg-black/55 text-[9px] tabular-nums text-white">{i + 1}</span>
                 </button>
               </li>
