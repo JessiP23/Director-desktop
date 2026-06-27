@@ -183,3 +183,17 @@ hdiutil create -volname Director \
 
 ## run script to make dmg and uplod to githhub
 pnpm release:github
+
+
+## run script to publish to apple 
+cd /Users/jessipavia/wm/director-desktop
+
+pnpm release:apple:check
+pnpm release:apple
+
+
+## script to see logs in real time for macos
+xcrun notarytool history \
+  --key "/Users/jessipavia/wm/director-desktop/docs/AuthKey_REDACTED_APPLE_KEY_ID.p8" \
+  --key-id "REDACTED_APPLE_KEY_ID" \
+  --issuer "REDACTED_APPLE_ISSUER"

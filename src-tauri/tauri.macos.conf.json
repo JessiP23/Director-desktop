@@ -16,5 +16,10 @@
         "transparent": true
       }
     ]
+  },
+  "bundle": {
+    "macOS": {
+      "signingIdentity": "Developer ID Application: centola engineering srl (YWP5Z5RZH4)"
+    }
   }
 }

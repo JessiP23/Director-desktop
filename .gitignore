@@ -26,3 +26,5 @@ dist-ssr
 # Local env
 .env.local
 .env*.local
+
+scripts/

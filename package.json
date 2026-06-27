@@ -10,6 +10,9 @@
     "tauri": "tauri",
     "release:dmg": "bash scripts/release-dmg.sh",
     "release:github": "bash scripts/release-dmg.sh --upload",
+    "release:apple:check": "bash scripts/apple-release-check.sh",
+    "release:apple": "pnpm release:apple:check && pnpm tauri build --bundles dmg --config src-tauri/tauri.macos.conf.json",
+    "release:apple:github": "pnpm release:apple:check && bash scripts/release-dmg.sh --upload",
     "typecheck": "tsc --noEmit",
     "smoke": "node --env-file=.env.local scripts/smoke.mjs"
   },
