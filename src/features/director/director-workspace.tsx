@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { StreamItem } from "@/lib/director/stream";
+import { cn } from "@/lib/utils/cn";
 import { AgentColumn } from "./palmier/agent-column";
 import { InspectorPanel } from "./palmier/inspector-panel";
 import { MediaDock } from "./palmier/media-dock";
@@ -141,7 +142,12 @@ export function DirectorWorkspace() {
 
   return (
     <div className="flex h-full">
-      {sidebarOpen && (
+      <div
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          sidebarOpen ? "w-[14rem] opacity-100" : "w-0 opacity-0 overflow-hidden"
+        )}
+      >
         <DirectorSidebar
           recentRuns={runs}
           isLoadingRuns={loading}
@@ -156,7 +162,7 @@ export function DirectorWorkspace() {
           onDeleteRun={handleDeleteRun}
           onNewProduction={() => setSelectedRunId(null)}
         />
-      )}
+      </div>
       <div className="flex-1">
         <PalmierShell
           inEditor={inEditor}
