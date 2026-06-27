@@ -6,6 +6,8 @@ import { RocketLaunchIcon, XMarkIcon } from "@heroicons/react/24/solid"
 import { cn } from "@/lib/utils/cn"
 import type { DirectorRun } from "@/lib/director/contract/director"
 import { iconForConversation } from "../lib/conversation-icons"
+import { useUserPlan } from "@/features/auth/auth-context"
+import { openUrl } from "@tauri-apps/plugin-opener"
 
 type DirectorSidebarProps = {
   recentRuns: DirectorRun[]
@@ -93,9 +95,23 @@ export function DirectorSidebar({
 }
 
 function SidebarCtaCard() {
+  const { plan } = useUserPlan();
+  const isPro = plan === "pro";
+
+  if (isPro) return null;
+
+  const handleUpgrade = async () => {
+    try {
+      await openUrl("https://wmstudio.ai/pricing");
+    } catch (error) {
+      console.error("Failed to open URL:", error);
+    }
+  };
+
   return (
     <button
       type="button"
+      onClick={handleUpgrade}
       className="group relative isolate overflow-hidden rounded-xl bg-blue-600 px-3 py-3.5 text-left shadow-lg transition-colors hover:bg-blue-500"
     >
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/18 via-white/3 to-black/20" />

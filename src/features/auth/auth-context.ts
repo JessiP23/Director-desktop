@@ -17,3 +17,12 @@ export function useAuth(): AuthContextValue {
   if (!ctx) throw new Error("useAuth must be used within <AuthProvider>");
   return ctx;
 }
+
+export function useUserPlan(): { plan: string | null } {
+  const { user } = useAuth();
+  const plan = React.useMemo(() => {
+    const planFromMetadata = user?.user_metadata?.plan as string | undefined;
+    return planFromMetadata || null;
+  }, [user]);
+  return { plan };
+}
