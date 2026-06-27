@@ -1,6 +1,7 @@
 import * as React from "react";
 import { getVersion } from "@tauri-apps/api/app";
 import { cn } from "@/lib/utils/cn";
+import { useUserPlan } from "@/features/auth/auth-context";
 
 /** True when running inside the Tauri WebView (vs a plain browser tab). */
 const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -13,6 +14,7 @@ const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window
  */
 export function VersionBadge({ className }: { className?: string }) {
   const [version, setVersion] = React.useState<string | null>(null);
+  const { plan } = useUserPlan();
 
   React.useEffect(() => {
     if (!isTauri) return;
@@ -23,15 +25,22 @@ export function VersionBadge({ className }: { className?: string }) {
 
   if (!version) return null;
 
+  const planDisplay = plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Free";
+
   return (
-    <span
-      className={cn(
-        "rounded-full bg-fill-secondary px-1.5 py-0.5 text-[10px] font-medium leading-none text-text-tertiary tabular-nums",
-        className,
-      )}
-      title={`Director ${version}`}
-    >
-      v{version}
-    </span>
+    <div className={cn("flex items-center gap-1.5", className)}>
+      <span
+        className="rounded-full bg-fill-secondary px-1.5 py-0.5 text-[10px] font-medium leading-none text-text-tertiary tabular-nums"
+        title={`Director ${version}`}
+      >
+        v{version}
+      </span>
+      <span
+        className="rounded-full bg-blue-600/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-blue-400"
+        title={`Plan: ${planDisplay}`}
+      >
+        {planDisplay}
+      </span>
+    </div>
   );
 }
