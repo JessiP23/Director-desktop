@@ -31,6 +31,15 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_oauth::init())
         .setup(|app| {
+            // Auto-update stack. `updater` exposes check/download/install to the
+            // frontend; `process` exposes `relaunch()` so the app can restart
+            // into the freshly installed version. Desktop-only.
+            #[cfg(desktop)]
+            {
+                app.handle()
+                    .plugin(tauri_plugin_updater::Builder::new().build())?;
+                app.handle().plugin(tauri_plugin_process::init())?;
+            }
             apply_window_vibrancy(app);
             Ok(())
         })

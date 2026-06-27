@@ -2,6 +2,7 @@ import { Brand } from "@/components/ui/brand";
 import { useAuth } from "@/features/auth/auth-context";
 import { isMac, isWindows } from "@/lib/platform";
 import { AppearanceToggle } from "./appearance-toggle";
+import { UpdateButton } from "./update-button";
 import { WindowControls } from "./window-controls";
 
 /**
@@ -29,6 +30,7 @@ export function TitleBar() {
       <Brand />
 
       <div className="no-drag flex items-center gap-1.5">
+        <UpdateButton />
         <AppearanceToggle />
         {user && (
           <button

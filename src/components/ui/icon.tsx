@@ -41,6 +41,7 @@ import {
   HelpCircle,
   FileText,
   MessageSquare,
+  Download,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -89,6 +90,7 @@ export const icons = {
   question: HelpCircle,
   document: FileText,
   chat: MessageSquare,
+  download: Download,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof icons;

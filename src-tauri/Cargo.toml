@@ -35,3 +35,8 @@ keyring = { version = "3", features = ["apple-native", "windows-native"] }
 # Real window vibrancy (NSVisualEffect on macOS). Applied behind the webview
 # in lib.rs, guarded to macOS — a no-op on Windows/Linux.
 window-vibrancy = "0.6"
+# Auto-update: fetches the signed `latest.json` from the GitHub release, downloads
+# the new bundle, verifies its minisign signature against the configured pubkey,
+# installs it in place, and (via the process plugin) relaunches into it.
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
