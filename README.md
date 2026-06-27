@@ -194,9 +194,9 @@ pnpm release:apple
 
 ## script to see logs in real time for macos
 xcrun notarytool history \
-  --key "/Users/jessipavia/wm/director-desktop/docs/AuthKey_REDACTED_APPLE_KEY_ID.p8" \
-  --key-id "REDACTED_APPLE_KEY_ID" \
-  --issuer "REDACTED_APPLE_ISSUER"
+  --key "$APPLE_API_KEY_PATH" \
+  --key-id "$APPLE_API_KEY" \
+  --issuer "$APPLE_API_ISSUER"
 
 ## Script to build, notarize, sign
 pnpm release:apple

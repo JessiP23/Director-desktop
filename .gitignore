@@ -28,3 +28,7 @@ dist-ssr
 .env*.local
 
 /scripts/
+# Apple notarization key material — never commit
+*.p8
+docs/AuthKey_*.p8
+scripts/apple.env
