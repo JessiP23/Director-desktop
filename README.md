@@ -197,3 +197,9 @@ xcrun notarytool history \
   --key "/Users/jessipavia/wm/director-desktop/docs/AuthKey_REDACTED_APPLE_KEY_ID.p8" \
   --key-id "REDACTED_APPLE_KEY_ID" \
   --issuer "REDACTED_APPLE_ISSUER"
+
+## Script to build, notarize, sign
+pnpm release:apple
+
+## Script to uplaod to github
+pnpm release:apple:github
