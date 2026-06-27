@@ -87,7 +87,7 @@ export function DirectorSidebar({
       </div>
 
       {/* CTA Card */}
-      <div className="p-2">
+      <div className="px-2 pb-2">
         <SidebarCtaCard />
       </div>
     </div>
@@ -112,7 +112,7 @@ function SidebarCtaCard() {
     <button
       type="button"
       onClick={handleUpgrade}
-      className="group relative isolate overflow-hidden rounded-xl bg-blue-600 px-3 py-3.5 text-left shadow-lg transition-colors hover:bg-blue-500"
+      className="group relative isolate w-full overflow-hidden rounded-xl bg-blue-600 px-3 py-3.5 text-left shadow-lg transition-colors hover:bg-blue-500"
     >
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/18 via-white/3 to-black/20" />
       <div
