@@ -35,6 +35,7 @@ export function DirectorWorkspace() {
   const [loadingRunId, setLoadingRunId] = React.useState<string | null>(null);
   const [deletingRunId, setDeletingRunId] = React.useState<string | null>(null);
   const [renamingRunId, setRenamingRunId] = React.useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
   // The whole right side starts closed → just the chatbot. Toggled from the
   // agent header. `view` swaps the preview pane between the preview and the editor.
   const [rightOpen, setRightOpen] = React.useState(false);
@@ -51,6 +52,15 @@ export function DirectorWorkspace() {
   React.useEffect(() => {
     if (selectedRunId) setPendingFirstPrompt(null);
   }, [selectedRunId]);
+
+  // Auto-close sidebar when right panel opens, reopen when right panel closes
+  React.useEffect(() => {
+    if (rightOpen) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  }, [rightOpen]);
 
   async function startNewProduction(prompt: string) {
     setPendingFirstPrompt(prompt);
@@ -131,20 +141,22 @@ export function DirectorWorkspace() {
 
   return (
     <div className="flex h-full">
-      <DirectorSidebar
-        recentRuns={runs}
-        isLoadingRuns={loading}
-        loadingRunId={loadingRunId}
-        deletingRunId={deletingRunId}
-        selectedRunId={selectedRunId || undefined}
-        onSelectRun={(runId) => {
-          setLoadingRunId(runId);
-          setSelectedRunId(runId);
-          setLoadingRunId(null);
-        }}
-        onDeleteRun={handleDeleteRun}
-        onNewProduction={() => setSelectedRunId(null)}
-      />
+      {sidebarOpen && (
+        <DirectorSidebar
+          recentRuns={runs}
+          isLoadingRuns={loading}
+          loadingRunId={loadingRunId}
+          deletingRunId={deletingRunId}
+          selectedRunId={selectedRunId || undefined}
+          onSelectRun={(runId) => {
+            setLoadingRunId(runId);
+            setSelectedRunId(runId);
+            setLoadingRunId(null);
+          }}
+          onDeleteRun={handleDeleteRun}
+          onNewProduction={() => setSelectedRunId(null)}
+        />
+      )}
       <div className="flex-1">
         <PalmierShell
           inEditor={inEditor}
