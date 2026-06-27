@@ -3,6 +3,7 @@ import { useAuth } from "@/features/auth/auth-context";
 import { isMac, isWindows } from "@/lib/platform";
 import { AppearanceToggle } from "./appearance-toggle";
 import { UpdateButton } from "./update-button";
+import { VersionBadge } from "./version-badge";
 import { WindowControls } from "./window-controls";
 
 /**
@@ -27,7 +28,10 @@ export function TitleBar() {
         isMac ? "pl-20 pr-3" : "pl-3 pr-0"
       }`}
     >
-      <Brand />
+      <span className="flex items-center gap-2">
+        <Brand />
+        <VersionBadge className="no-drag" />
+      </span>
 
       <div className="no-drag flex items-center gap-1.5">
         <UpdateButton />
