@@ -102,7 +102,7 @@ function SidebarCtaCard() {
 
   const handleUpgrade = async () => {
     try {
-      await openUrl("https://wmstudio.ai/pricing");
+      await openUrl("https://wmstudio.io/dashboard/credits");
     } catch (error) {
       console.error("Failed to open URL:", error);
     }
