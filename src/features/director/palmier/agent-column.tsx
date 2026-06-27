@@ -1,9 +1,11 @@
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
-import { PalmierIconButton, PanelHeaderBar, PanelShell } from "@/components/palmier";
+import { PalmierIconButton, PanelShell } from "@/components/palmier";
 import type { DirectorQuality } from "@/lib/director/contract/director";
 import type { StreamItem } from "@/lib/director/stream";
 import { Composer } from "../composer";
 import { ConversationView } from "../conversation-view";
+import { HomeHeader } from "../components/home-header";
+import { iconForConversation } from "../lib/conversation-icons";
 
 /**
  * Palmier agent column (left): the chat. Header with a back-to-productions
@@ -11,6 +13,7 @@ import { ConversationView } from "../conversation-view";
  */
 export function AgentColumn({
   runTitle,
+  runId,
   items,
   onSend,
   composerDisabled,
@@ -23,8 +26,11 @@ export function AgentColumn({
   onQualityChange,
   rightOpen,
   onToggleRight,
+  onRenameRun,
+  isSavingTitle,
 }: {
   runTitle?: string;
+  runId?: string;
   items: StreamItem[];
   onSend: (text: string) => void;
   composerDisabled: boolean;
@@ -38,13 +44,20 @@ export function AgentColumn({
   /** Whether the right side (media/preview/inspector/timeline) is open. */
   rightOpen: boolean;
   onToggleRight: () => void;
+  onRenameRun?: (title: string) => Promise<void>;
+  isSavingTitle?: boolean;
 }) {
+  const ConversationIcon = runId ? iconForConversation(runId) : undefined;
+
   return (
     <PanelShell>
-      <PanelHeaderBar
-        title={runTitle ?? "Director"}
-        leading={<PalmierIconButton name="chevronRight" label="Productions" className="rotate-180" onClick={onBack} />}
-        trailing={
+      <HomeHeader
+        conversationTitle={runTitle}
+        conversationIcon={ConversationIcon}
+        isSavingConversationTitle={isSavingTitle}
+        onConversationTitleChange={onRenameRun}
+        onHomeClick={onBack}
+        rightAction={
           <PalmierIconButton
             icon={rightOpen ? PanelRightClose : PanelRightOpen}
             label={rightOpen ? "Hide panels" : "Show panels"}

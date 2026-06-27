@@ -14,6 +14,7 @@ import type { DirectorQuality } from "@/lib/director/contract/director";
 import { EditorPanel, collectEditorClips } from "./editor/components/editor-view";
 import { latestEditorPlan, latestTimelineSyncVersion } from "./editor/lib/editor-plan-apply";
 import { uploadAttachments } from "./editor/lib/upload-attachments";
+import { DirectorSidebar } from "./components/sidebar";
 
 /**
  * The Director cockpit, in Palmier's spatial model: a productions home that
@@ -23,7 +24,7 @@ import { uploadAttachments } from "./editor/lib/upload-attachments";
  * the existing feature components.
  */
 export function DirectorWorkspace() {
-  const { runs, loading, error: runsError, createRun, patchRun } = useRuns();
+  const { runs, loading, createRun, patchRun, deleteRun } = useRuns();
   const [selectedRunId, setSelectedRunId] = React.useState<string | null>(null);
   const [creating, setCreating] = React.useState(false);
   const [pendingFirstPrompt, setPendingFirstPrompt] = React.useState<string | null>(null);
@@ -31,6 +32,9 @@ export function DirectorWorkspace() {
   const [agentOpen, setAgentOpen] = React.useState(true);
   const [preset, setPreset] = React.useState<Preset>("default");
   const [quality, setQuality] = React.useState<DirectorQuality>("premium");
+  const [loadingRunId, setLoadingRunId] = React.useState<string | null>(null);
+  const [deletingRunId, setDeletingRunId] = React.useState<string | null>(null);
+  const [renamingRunId, setRenamingRunId] = React.useState<string | null>(null);
   // The whole right side starts closed → just the chatbot. Toggled from the
   // agent header. `view` swaps the preview pane between the preview and the editor.
   const [rightOpen, setRightOpen] = React.useState(false);
@@ -59,6 +63,28 @@ export function DirectorWorkspace() {
       throw err;
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function handleDeleteRun(runId: string) {
+    setDeletingRunId(runId);
+    try {
+      await deleteRun(runId);
+      if (selectedRunId === runId) {
+        setSelectedRunId(null);
+      }
+    } finally {
+      setDeletingRunId(null);
+    }
+  }
+
+  async function handleRenameRun(title: string) {
+    if (!selectedRunId) return;
+    setRenamingRunId(selectedRunId);
+    try {
+      await patchRun(selectedRunId, { title });
+    } finally {
+      setRenamingRunId(null);
     }
   }
 
@@ -104,59 +130,76 @@ export function DirectorWorkspace() {
   const timelineSyncToken = React.useMemo(() => latestTimelineSyncVersion(events), [events]);
 
   return (
-    <PalmierShell
-      inEditor={inEditor}
-      rightOpen={rightOpen}
-      agentOpen={agentOpen}
-      preset={preset}
-      editorActive={view === "editor"}
-      onToggleAgent={() => setAgentOpen((v) => !v)}
-      onToggleEditor={() => setView((v) => (v === "editor" ? "preview" : "editor"))}
-      onPreset={setPreset}
-      home={
-        <ProductionsHome
-          runs={runs}
-          loading={loading}
-          error={runsError}
-          creating={creating}
-          onStart={startNewProduction}
-          onSelect={setSelectedRunId}
-          quality={quality}
-          onQualityChange={setQuality}
-        />
-      }
-      agent={
-        <AgentColumn
-          runTitle={run?.title}
-          items={conversationItems}
-          onSend={(text) => send(text, { quality })}
-          composerDisabled={composerBusy}
-          composerBusy={composerBusy}
-          placeholder={creating || isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`}
-          error={error}
-          onBack={() => setSelectedRunId(null)}
-          contextUsage={{ usedTokens, budgetTokens: 30_000 }}
-          quality={quality}
-          onQualityChange={setQuality}
+    <div className="flex h-full">
+      <DirectorSidebar
+        recentRuns={runs}
+        isLoadingRuns={loading}
+        loadingRunId={loadingRunId}
+        deletingRunId={deletingRunId}
+        selectedRunId={selectedRunId || undefined}
+        onSelectRun={(runId) => {
+          setLoadingRunId(runId);
+          setSelectedRunId(runId);
+          setLoadingRunId(null);
+        }}
+        onDeleteRun={handleDeleteRun}
+        onNewProduction={() => setSelectedRunId(null)}
+      />
+      <div className="flex-1">
+        <PalmierShell
+          inEditor={inEditor}
           rightOpen={rightOpen}
-          onToggleRight={() => setRightOpen((v) => !v)}
+          agentOpen={agentOpen}
+          preset={preset}
+          editorActive={view === "editor"}
+          onToggleAgent={() => setAgentOpen((v) => !v)}
+          onToggleEditor={() => setView((v) => (v === "editor" ? "preview" : "editor"))}
+          onPreset={setPreset}
+          home={
+            <ProductionsHome
+              creating={creating}
+              onStart={startNewProduction}
+              quality={quality}
+              onQualityChange={setQuality}
+            />
+          }
+          agent={
+            <AgentColumn
+              runTitle={run?.title}
+              runId={selectedRunId || undefined}
+              items={conversationItems}
+              onSend={(text) => send(text, { quality })}
+              composerDisabled={composerBusy}
+              composerBusy={composerBusy}
+              placeholder={creating || isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`}
+              error={error}
+              onBack={() => setSelectedRunId(null)}
+              contextUsage={{ usedTokens, budgetTokens: 30_000 }}
+              quality={quality}
+              onQualityChange={setQuality}
+              rightOpen={rightOpen}
+              onToggleRight={() => setRightOpen((v) => !v)}
+              onRenameRun={handleRenameRun}
+              isSavingTitle={renamingRunId === selectedRunId}
+            />
+          }
+          media={<MediaDock runId={selectedRunId} brief={brief} briefLoading={briefLoading} onOpenEditor={() => setView("editor")} />}
+          preview={<PreviewPanel items={items} />}
+          editor={
+            <EditorPanel
+              isOpen={view === "editor"}
+              onClose={() => setView("preview")}
+              runId={selectedRunId}
+              clips={editorClips}
+              onUploadFiles={uploadAttachments}
+              agentPlan={editorPlan}
+              timelineSyncToken={timelineSyncToken}
+            />
+          }
+          inspector={<InspectorPanel run={run} brief={brief} />}
+          timeline={<TimelineDock brief={brief} items={items} />}
         />
-      }
-      media={<MediaDock runId={selectedRunId} brief={brief} briefLoading={briefLoading} onOpenEditor={() => setView("editor")} />}
-      preview={<PreviewPanel items={items} />}
-      editor={
-        <EditorPanel
-          isOpen={view === "editor"}
-          onClose={() => setView("preview")}
-          runId={selectedRunId}
-          clips={editorClips}
-          onUploadFiles={uploadAttachments}
-          agentPlan={editorPlan}
-          timelineSyncToken={timelineSyncToken}
-        />
-      }
-      inspector={<InspectorPanel run={run} brief={brief} />}
-      timeline={<TimelineDock brief={brief} items={items} />}
-    />
+      </div>
+    </div>
   );
 }
