@@ -31,7 +31,7 @@ export function ProductionsHome({
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="auto"
           />
           <div className="absolute inset-0 bg-black/58" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(24,24,27,0.12),rgba(8,8,8,0.72)_68%,rgba(8,8,8,0.96)_100%)]" />
