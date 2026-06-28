@@ -22,8 +22,21 @@ export function ProductionsHome({
 }) {
   return (
     <div className="flex h-full flex-col" style={{ background: "var(--pm-bg-base)" }}>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-7 px-6 py-10">
+      <div className="min-h-0 flex-1 overflow-y-auto relative">
+        <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+          <video
+            src="https://wmstudioassets2.blob.core.windows.net/public-assets/root/assets/commercial-thumbnail/videocard1wm.mov"
+            className="h-full w-full scale-[1.06] object-cover opacity-55"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+          />
+          <div className="absolute inset-0 bg-black/58" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(24,24,27,0.12),rgba(8,8,8,0.72)_68%,rgba(8,8,8,0.96)_100%)]" />
+        </div>
+        <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col gap-7 px-6 py-10">
         <div className="text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.22em]" style={{ color: "var(--pm-text-muted)" }}>WM Studio · Director</p>
         </div>
