@@ -70,7 +70,7 @@ export function HomeHeader({
   }
 
   return (
-    <div className="absolute inset-x-0 top-0 z-50 flex h-9 items-center justify-between bg-[#141416] px-3 sm:px-4">
+    <div className="absolute inset-x-0 top-0 z-50 flex h-12 items-center justify-between bg-[#141416] px-3 sm:px-4">
       {onToggleSidebar && (
         <button
           type="button"

@@ -35,7 +35,7 @@ export function ConversationView({
 
   return (
     <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-y-auto">
-      <div className="mx-auto flex max-w-3xl flex-col gap-4 px-6 pt-16 pb-8">
+      <div className="mx-auto flex max-w-3xl flex-col gap-4 px-6 pt-20 pb-8">
         {items.map((item) => (
           <StreamItemView key={item.id} item={item} onSend={onSend} />
         ))}
