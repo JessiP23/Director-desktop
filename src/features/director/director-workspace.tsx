@@ -63,6 +63,13 @@ export function DirectorWorkspace() {
     }
   }, [rightOpen]);
 
+  // Show sidebar when going home (not in editor)
+  React.useEffect(() => {
+    if (!selectedRunId && !pendingFirstPrompt) {
+      setSidebarOpen(true);
+    }
+  }, [selectedRunId, pendingFirstPrompt]);
+
   async function startNewProduction(prompt: string) {
     setPendingFirstPrompt(prompt);
     setCreating(true);
@@ -202,7 +209,7 @@ export function DirectorWorkspace() {
               isSavingTitle={renamingRunId === selectedRunId}
             />
           }
-          media={<MediaDock runId={selectedRunId} brief={brief} briefLoading={briefLoading} onOpenEditor={() => setView("editor")} />}
+          media={<MediaDock runId={selectedRunId} brief={brief} briefLoading={briefLoading} />}
           preview={<PreviewPanel items={items} />}
           editor={
             <EditorPanel

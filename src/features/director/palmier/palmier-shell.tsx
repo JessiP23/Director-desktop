@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Clapperboard, Layers, Eye, Settings, Clock, X } from "lucide-react";
+import { Clapperboard, Layers, Eye, Settings, Clock, X, MessageSquare } from "lucide-react";
 import { SplitPane } from "@/components/ui";
 import { PalmierIconButton } from "@/components/palmier";
 
@@ -68,13 +68,6 @@ export function PalmierShell({
     }
   }, [rightPanelTab, preview, media, inspector, timeline]);
 
-  // When switching tabs, if editor is active, disable it to show the tab content
-  React.useEffect(() => {
-    if (editorActive && rightPanelTab !== "preview") {
-      onToggleEditor();
-    }
-  }, [rightPanelTab, editorActive, onToggleEditor]);
-
   return (
     <div className="flex h-full min-h-0 flex-col" style={{ background: "var(--pm-bg-base)" }}>
       <div className="flex min-h-0 flex-1">
@@ -101,11 +94,11 @@ export function PalmierShell({
               )
             )}
             {/* Vertical tab sidebar on the right */}
-            <div className="flex w-12 flex-col items-center border-l border-zinc-800 bg-zinc-900/50 py-2">
-              <PalmierIconButton name="chat" label="Toggle chat" active={agentOpen} onClick={onToggleAgent} />
-              <div className="my-2 h-px w-8 bg-zinc-800" />
+            <div className="flex w-16 flex-col items-center border-l border-zinc-800 bg-zinc-900/50 py-2">
+              <PalmierIconButton icon={MessageSquare} label="Toggle chat" active={agentOpen} onClick={onToggleAgent} size={32} glyph={18} />
+              <div className="my-2 h-px w-10 bg-zinc-800" />
               {/* Vertical tab navigation */}
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 {TABS.map((tab) => {
                   const Icon = tab.icon;
                   return (
@@ -114,17 +107,28 @@ export function PalmierShell({
                       icon={Icon}
                       label={tab.label}
                       active={rightPanelTab === tab.id}
-                      onClick={() => onRightPanelTabChange(tab.id)}
+                      onClick={() => {
+                        onRightPanelTabChange(tab.id);
+                        if (editorActive) {
+                          onToggleEditor();
+                        }
+                      }}
+                      size={32}
+                      glyph={18}
                     />
                   );
                 })}
               </div>
-              <div className="my-2 h-px w-8 bg-zinc-800" />
+              <div className="my-2 h-px w-10 bg-zinc-800" />
               {/* Swap the preview pane to the full Editor (and back). */}
-              <PalmierIconButton icon={Clapperboard} label="Editor" active={editorActive} onClick={onToggleEditor} />
+              <PalmierIconButton icon={Clapperboard} label="Editor" active={editorActive} onClick={() => {
+                if (!editorActive) {
+                  onToggleEditor();
+                }
+              }} size={32} glyph={18} />
               <div className="flex-1" />
               {/* Close right panel */}
-              <PalmierIconButton icon={X} label="Close panel" onClick={onCloseRight} />
+              <PalmierIconButton icon={X} label="Close panel" onClick={onCloseRight} size={32} glyph={18} />
             </div>
           </>
         )}

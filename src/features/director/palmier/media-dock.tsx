@@ -9,7 +9,6 @@ const TABS: RailTab[] = [
   { id: "references", label: "References", icon: "references" },
   { id: "library", label: "Library", icon: "library" },
   { id: "brief", label: "Brief", icon: "notes" },
-  { id: "director", label: "Director", icon: "video" },
 ];
 
 /** The Palmier media dock: a 38px icon rail (References / Library / Brief) with
@@ -18,24 +17,13 @@ export function MediaDock({
   runId,
   brief,
   briefLoading,
-  onOpenEditor,
 }: {
   runId: string | null;
   brief: DirectorBrief | null;
   briefLoading: boolean;
-  onOpenEditor: () => void;
 }) {
   const [tab, setTab] = React.useState("references");
-  const handleSelect = React.useCallback(
-    (id: string) => {
-      if (id === "director") {
-        onOpenEditor();
-        return;
-      }
-      setTab(id);
-    },
-    [onOpenEditor],
-  );
+  const handleSelect = React.useCallback((id: string) => setTab(id), []);
 
   return (
     <PanelShell>
