@@ -181,7 +181,7 @@ export function Composer({
 
   return (
     <div className="shrink-0 px-4 py-3.5 shadow-[inset_0_0.5px_0_var(--separator)]">
-      <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-2xl border border-separator bg-surface-1 px-3 py-2 shadow-sm transition-colors focus-within:border-accent/60">
+      <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-[30px] border border-separator bg-surface-1 px-3 py-2 shadow-sm transition-colors focus-within:border-accent/60">
         <textarea
           ref={ref}
           rows={1}

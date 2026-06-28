@@ -1,5 +1,5 @@
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
-import { PalmierIconButton, PanelShell } from "@/components/palmier";
+import { PalmierIconButton } from "@/components/palmier";
 import type { DirectorQuality } from "@/lib/director/contract/director";
 import type { StreamItem } from "@/lib/director/stream";
 import { Composer } from "../composer";
@@ -50,7 +50,7 @@ export function AgentColumn({
   const ConversationIcon = runId ? iconForConversation(runId) : undefined;
 
   return (
-    <PanelShell>
+    <div className="relative flex min-h-0 flex-1 flex-col bg-[#141416]">
       <HomeHeader
         conversationTitle={runTitle}
         conversationIcon={ConversationIcon}
@@ -81,6 +81,6 @@ export function AgentColumn({
         quality={quality}
         onQualityChange={onQualityChange}
       />
-    </PanelShell>
+    </div>
   );
 }

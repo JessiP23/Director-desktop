@@ -53,7 +53,7 @@ export function DirectorSidebar({
         <img
           src="/wm.svg"
           alt="WM Studio"
-          className="h-16 w-16"
+          className="h-28 w-28"
           draggable={false}
         />
       </div>
@@ -63,7 +63,7 @@ export function DirectorSidebar({
         <button
           type="button"
           onClick={onNewProduction}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-all duration-200 hover:bg-white/4 hover:text-zinc-200 active:scale-95"
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-all duration-200 hover:bg-white/4 hover:text-zinc-200"
         >
           <Plus className="h-4 w-4" />
           <span>New Production</span>
@@ -112,7 +112,7 @@ function SidebarCtaCard() {
     <button
       type="button"
       onClick={handleUpgrade}
-      className="group relative isolate w-full overflow-hidden rounded-xl bg-blue-600 px-3 py-3.5 text-left shadow-lg transition-all duration-300 hover:bg-blue-500 hover:shadow-xl active:scale-95"
+      className="group relative isolate w-full overflow-hidden rounded-xl bg-blue-600 px-3 py-3.5 text-left shadow-lg transition-all duration-300 hover:bg-blue-500 hover:shadow-xl"
     >
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/18 via-white/3 to-black/20" />
       <div
@@ -200,7 +200,7 @@ function RecentRunsList({
               onClick={() => onSelectRun(recentRun.id)}
               disabled={isLoadingThisRun || isDeletingThisRun}
               className={cn(
-                "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-all duration-200 hover:bg-white/4 hover:text-zinc-200 active:scale-95",
+                "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-all duration-200 hover:bg-white/4 hover:text-zinc-200",
                 isSelected && "bg-white/8 text-zinc-200",
                 (isLoadingThisRun || isDeletingThisRun) && "opacity-50",
               )}
