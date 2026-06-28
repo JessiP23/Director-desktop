@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/cn";
 import { AgentColumn } from "./palmier/agent-column";
 import { InspectorPanel } from "./palmier/inspector-panel";
 import { MediaDock } from "./palmier/media-dock";
-import { PalmierShell, type Preset } from "./palmier/palmier-shell";
+import { PalmierShell, type RightPanelTab } from "./palmier/palmier-shell";
 import { PreviewPanel } from "./palmier/preview-panel";
 import { ProductionsHome } from "./palmier/productions-home";
 import { TimelineDock } from "./palmier/timeline-dock";
@@ -31,7 +31,6 @@ export function DirectorWorkspace() {
   const [pendingFirstPrompt, setPendingFirstPrompt] = React.useState<string | null>(null);
   const [briefKey, setBriefKey] = React.useState(0);
   const [agentOpen, setAgentOpen] = React.useState(true);
-  const [preset, setPreset] = React.useState<Preset>("default");
   const [quality, setQuality] = React.useState<DirectorQuality>("premium");
   const [loadingRunId, setLoadingRunId] = React.useState<string | null>(null);
   const [deletingRunId, setDeletingRunId] = React.useState<string | null>(null);
@@ -41,6 +40,7 @@ export function DirectorWorkspace() {
   // agent header. `view` swaps the preview pane between the preview and the editor.
   const [rightOpen, setRightOpen] = React.useState(false);
   const [view, setView] = React.useState<"preview" | "editor">("preview");
+  const [rightPanelTab, setRightPanelTab] = React.useState<RightPanelTab>("preview");
 
   const onBriefUpdated = React.useCallback(() => setBriefKey((k) => k + 1), []);
   const { items, events, send, sendState, isRunning, run, error } = useRun(selectedRunId, {
@@ -168,11 +168,12 @@ export function DirectorWorkspace() {
           inEditor={inEditor}
           rightOpen={rightOpen}
           agentOpen={agentOpen}
-          preset={preset}
           editorActive={view === "editor"}
           onToggleAgent={() => setAgentOpen((v) => !v)}
           onToggleEditor={() => setView((v) => (v === "editor" ? "preview" : "editor"))}
-          onPreset={setPreset}
+          onCloseRight={() => setRightOpen(false)}
+          rightPanelTab={rightPanelTab}
+          onRightPanelTabChange={setRightPanelTab}
           home={
             <ProductionsHome
               creating={creating}
