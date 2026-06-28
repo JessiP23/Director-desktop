@@ -16,6 +16,11 @@ import { EditorPanel, collectEditorClips } from "./editor/components/editor-view
 import { latestEditorPlan, latestTimelineSyncVersion } from "./editor/lib/editor-plan-apply";
 import { uploadAttachments } from "./editor/lib/upload-attachments";
 import { DirectorSidebar } from "./components/sidebar";
+import { GenerationConfirmBar, type PendingGenerationPreview } from "./components/generation-confirm-bar";
+import { SteeringBar } from "./components/steering-bar";
+import { MemorySuggestionToasts, type MemorySuggestion } from "./components/memory-suggestion-toasts";
+import { DirectorToastContainer, useDirectorToasts } from "./components/director-toast";
+import { RunAssetsPanel, type RunAsset } from "./components/run-assets-panel";
 
 /**
  * The Director cockpit, in Palmier's spatial model: a productions home that
@@ -41,6 +46,14 @@ export function DirectorWorkspace() {
   const [rightOpen, setRightOpen] = React.useState(false);
   const [view, setView] = React.useState<"preview" | "editor">("preview");
   const [rightPanelTab, setRightPanelTab] = React.useState<RightPanelTab>("preview");
+  
+  // New component states
+  const [pendingGenerations, setPendingGenerations] = React.useState<PendingGenerationPreview[]>([]);
+  const [steeringQuestion, setSteeringQuestion] = React.useState<{ question: string; options: string[] } | null>(null);
+  const [memorySuggestions, setMemorySuggestions] = React.useState<MemorySuggestion[]>([]);
+  const [runAssets, setRunAssets] = React.useState<RunAsset[]>([]);
+  const [runAssetsOpen, setRunAssetsOpen] = React.useState(false);
+  const { toasts, push: _pushToast, dismiss: dismissToast } = useDirectorToasts();
 
   const onBriefUpdated = React.useCallback(() => setBriefKey((k) => k + 1), []);
   const { items, events, send, sendState, isRunning, run, error } = useRun(selectedRunId, {
@@ -192,24 +205,49 @@ export function DirectorWorkspace() {
             />
           }
           agent={
-            <AgentColumn
-              runTitle={run?.title}
-              runId={selectedRunId || undefined}
-              items={conversationItems}
-              onSend={(text) => send(text, { quality })}
-              composerDisabled={composerBusy}
-              composerBusy={composerBusy}
-              placeholder={creating || isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`}
-              error={error}
-              onBack={() => setSelectedRunId(null)}
-              contextUsage={{ usedTokens, budgetTokens: 30_000 }}
-              quality={quality}
-              onQualityChange={setQuality}
-              rightOpen={rightOpen}
-              onToggleRight={() => setRightOpen((v) => !v)}
-              onRenameRun={handleRenameRun}
-              isSavingTitle={renamingRunId === selectedRunId}
-            />
+            <>
+              {steeringQuestion && (
+                <SteeringBar
+                  question={steeringQuestion.question}
+                  options={steeringQuestion.options}
+                  disabled={composerBusy}
+                  onSelect={(option) => {
+                    send(option, { quality });
+                    setSteeringQuestion(null);
+                  }}
+                  onCustom={() => setSteeringQuestion(null)}
+                />
+              )}
+              {pendingGenerations.length > 0 && (
+                <GenerationConfirmBar
+                  pending={pendingGenerations}
+                  disabled={composerBusy}
+                  onConfirm={async (text) => {
+                    setPendingGenerations([]);
+                    // Send confirmation
+                    await send(text, { quality });
+                  }}
+                />
+              )}
+              <AgentColumn
+                runTitle={run?.title}
+                runId={selectedRunId || undefined}
+                items={conversationItems}
+                onSend={(text) => send(text, { quality })}
+                composerDisabled={composerBusy}
+                composerBusy={composerBusy}
+                placeholder={creating || isRunning ? "Director is working…" : `Reply to ${run?.title ?? "Director"}…`}
+                error={error}
+                onBack={() => setSelectedRunId(null)}
+                contextUsage={{ usedTokens, budgetTokens: 30_000 }}
+                quality={quality}
+                onQualityChange={setQuality}
+                rightOpen={rightOpen}
+                onToggleRight={() => setRightOpen((v) => !v)}
+                onRenameRun={handleRenameRun}
+                isSavingTitle={renamingRunId === selectedRunId}
+              />
+            </>
           }
           media={<MediaDock runId={selectedRunId} brief={brief} briefLoading={briefLoading} />}
           preview={<PreviewPanel items={items} />}
@@ -228,6 +266,32 @@ export function DirectorWorkspace() {
           timeline={<TimelineDock brief={brief} items={items} />}
         />
       </div>
+      
+      {/* Toast containers */}
+      <DirectorToastContainer
+        toasts={toasts}
+        onDismiss={dismissToast}
+      />
+      <MemorySuggestionToasts
+        suggestions={memorySuggestions}
+        onAccept={async (suggestion) => {
+          // Handle memory acceptance
+          setMemorySuggestions((current) => current.filter((s) => s.id !== suggestion.id));
+        }}
+        onReject={(id) => {
+          setMemorySuggestions((current) => current.filter((s) => s.id !== id));
+        }}
+      />
+      
+      {/* Run Assets Panel */}
+      <RunAssetsPanel
+        isOpen={runAssetsOpen}
+        onClose={() => setRunAssetsOpen(false)}
+        assets={runAssets}
+        onDeleteAsset={(assetId) => {
+          setRunAssets((current) => current.filter((a) => a.id !== assetId));
+        }}
+      />
     </div>
   );
 }
