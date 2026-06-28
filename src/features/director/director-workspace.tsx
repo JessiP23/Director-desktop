@@ -76,6 +76,7 @@ export function DirectorWorkspace() {
     try {
       const created = await createRun({ prompt, quality });
       setSelectedRunId(created.id);
+      setRightOpen(false);
     } catch (err) {
       setPendingFirstPrompt(null);
       throw err;
@@ -165,6 +166,7 @@ export function DirectorWorkspace() {
             setLoadingRunId(runId);
             setSelectedRunId(runId);
             setLoadingRunId(null);
+            setRightOpen(false);
           }}
           onDeleteRun={handleDeleteRun}
           onNewProduction={() => setSelectedRunId(null)}
