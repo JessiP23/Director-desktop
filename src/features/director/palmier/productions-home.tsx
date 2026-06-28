@@ -26,7 +26,7 @@ export function ProductionsHome({
         <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
           <video
             src="/assets/commercial-thumbnail/videocard1wm.mov"
-            className="h-full w-full scale-[1.06] object-cover opacity-55"
+            className="h-full w-full object-cover opacity-55"
             autoPlay
             loop
             muted

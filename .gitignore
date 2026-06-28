@@ -32,3 +32,5 @@ dist-ssr
 *.p8
 docs/AuthKey_*.p8
 scripts/apple.env
+
+/public/assets/videos/
