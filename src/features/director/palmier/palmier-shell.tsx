@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Clapperboard, Layers, Eye, Settings, Clock, X, MessageSquare } from "lucide-react";
+import { Clapperboard, Layers, Eye, Settings, Clock, X, Bot } from "lucide-react";
 import { SplitPane } from "@/components/ui";
 import { PalmierIconButton } from "@/components/palmier";
 
@@ -95,7 +95,7 @@ export function PalmierShell({
             )}
             {/* Vertical tab sidebar on the right */}
             <div className="flex w-16 flex-col items-center border-l border-zinc-800 bg-zinc-900/50 py-2">
-              <PalmierIconButton icon={MessageSquare} label="Toggle chat" active={agentOpen} onClick={onToggleAgent} size={32} glyph={18} />
+              <PalmierIconButton icon={Bot} label="Toggle chat" active={agentOpen} onClick={onToggleAgent} size={32} glyph={18} />
               <div className="my-2 h-px w-10 bg-zinc-800" />
               {/* Vertical tab navigation */}
               <div className="flex flex-col gap-2">
