@@ -6,7 +6,7 @@ import { IconButton } from "./icon-button";
 type Transform = { x: number; y: number; scale: number };
 
 const MIN_SCALE = 0.25;
-const MAX_SCALE = 2.5;
+const MAX_SCALE = 1.5;
 const clampScale = (s: number) => Math.min(Math.max(s, MIN_SCALE), MAX_SCALE);
 
 /**
@@ -34,7 +34,7 @@ export function Canvas({
   const centerTransform = React.useCallback((): Transform => {
     const el = containerRef.current;
     if (origin !== "center" || !el) return { x: 0, y: 0, scale: 1 };
-    return { x: el.clientWidth / 2, y: el.clientHeight / 2, scale: 1 };
+    return { x: el.clientWidth / 2, y: el.clientHeight / 2, scale: 0.64 };
   }, [origin]);
 
   // Center the content origin once the container has a measured size.
