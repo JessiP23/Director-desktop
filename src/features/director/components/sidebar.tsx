@@ -49,11 +49,11 @@ export function DirectorSidebar({
       className="flex h-full w-[14rem] flex-col border-r border-zinc-800 bg-zinc-900"
     >
       {/* Logo */}
-      <div className="px-4 py-6">
+      <div className="flex justify-center px-4 py-6">
         <img
           src="/wm.svg"
           alt="WM Studio"
-          className="h-28 w-28"
+          className="h-16 w-16"
           draggable={false}
         />
       </div>
