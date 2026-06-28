@@ -99,26 +99,26 @@ export function HeroComposer({
 
   return (
     <>
-      <div className="mb-12 flex w-full max-w-3xl flex-col items-center transition-all duration-500 ease-out">
+      <div className="mb-12 flex w-full max-w-3xl flex-col items-center">
         {showLogo && (
           <img
             src="/wm.svg"
             alt="WM Studio"
-            className="-mt-8 mb-[-20px] h-[126px] w-auto transition-all duration-500 ease-out sm:-mt-10 sm:mb-[-26px] sm:h-[156px]"
+            className="-mt-8 mb-[-20px] h-[126px] w-auto sm:-mt-10 sm:mb-[-26px] sm:h-[156px]"
             draggable={false}
           />
         )}
-        <h1 className={cn("whitespace-nowrap text-center text-4xl font-semibold tracking-tight transition-all duration-500 ease-out sm:text-5xl md:text-6xl", titleClassName)}>
+        <h1 className={cn("whitespace-nowrap text-center text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl", titleClassName)}>
           <span className="text-zinc-50">What are we</span>{" "}
           <span className="text-white/45">making today?</span>
         </h1>
-        <p className="mt-3 text-center text-[12px] font-medium leading-[1.45] tracking-0 text-zinc-400 transition-all duration-500 ease-out sm:text-[13px]">
+        <p className="mt-3 text-center text-[12px] font-medium leading-[1.45] tracking-0 text-zinc-400 sm:text-[13px]">
           Describe your production and Director will build it
         </p>
       </div>
 
-      <div className="w-full max-w-3xl transition-all duration-300 ease-out">
-        <div className="relative z-10 rounded-[30px] bg-[rgba(39,39,42,0.62)] p-1 shadow-[0_18px_60px_-20px_rgba(0,0,0,0.6)] backdrop-blur-[32px] backdrop-saturate-150 transition-all duration-300 hover:shadow-[0_20px_70px_-20px_rgba(0,0,0,0.7)]">
+      <div className="w-full max-w-3xl">
+        <div className="relative z-10 rounded-[30px] bg-[rgba(39,39,42,0.62)] p-1 shadow-[0_18px_60px_-20px_rgba(0,0,0,0.6)] backdrop-blur-[10px] backdrop-saturate-150">
           <Composer
             onSend={onSend}
             disabled={disabled}
@@ -129,7 +129,7 @@ export function HeroComposer({
           />
         </div>
         {submitError && (
-          <p role="alert" className="mt-2 px-4 text-center text-xs text-red-300 transition-all duration-300">
+          <p role="alert" className="mt-2 px-4 text-center text-xs text-red-300">
             {submitError}
           </p>
         )}

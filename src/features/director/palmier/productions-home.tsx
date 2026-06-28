@@ -25,13 +25,13 @@ export function ProductionsHome({
       <div className="min-h-0 flex-1 overflow-y-auto relative">
         <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
           <video
-            src="/assets/commercial-thumbnail/videocard1wm.mov"
+            src="https://wmstudioassets2.blob.core.windows.net/public-assets/root/assets/commercial-thumbnail/videocard1wm.mov"
             className="h-full w-full object-cover opacity-55"
             autoPlay
             loop
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
           />
           <div className="absolute inset-0 bg-black/58" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(24,24,27,0.12),rgba(8,8,8,0.72)_68%,rgba(8,8,8,0.96)_100%)]" />

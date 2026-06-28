@@ -48,17 +48,8 @@ export function SignInScreen() {
       <div className="relative grid min-h-screen w-full items-stretch lg:grid-cols-[1.15fr_0.85fr]">
         <section className="relative hidden h-screen bg-neutral-950 p-3 lg:sticky lg:top-0 lg:flex">
           <div className="relative flex w-full overflow-hidden rounded-[24px] bg-zinc-900">
-            <video
-              src="/assets/videos/auto-cinematic.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/20 via-zinc-950/28 to-zinc-950/70" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_46%)]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/30 to-zinc-950/60" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.1),transparent_50%)]" />
 
             <div className="relative z-10 flex w-full flex-col justify-between p-7">
               <div />
