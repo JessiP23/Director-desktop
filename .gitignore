@@ -34,3 +34,4 @@ docs/AuthKey_*.p8
 scripts/apple.env
 
 /public/assets/videos/
+/public/assets/commercial-thumbnail/
