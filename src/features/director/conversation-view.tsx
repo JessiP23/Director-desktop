@@ -34,8 +34,18 @@ export function ConversationView({
   }, [items]);
 
   return (
-    <div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-y-auto">
-      <div className="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-8">
+    <div
+      ref={scrollRef}
+      onScroll={onScroll}
+      className="min-h-0 flex-1 overflow-y-auto"
+      style={{
+        WebkitMaskImage:
+          "linear-gradient(to bottom, transparent 0, transparent 48px, black 64px, black calc(100% - 58px), transparent 100%)",
+        maskImage:
+          "linear-gradient(to bottom, transparent 0, transparent 48px, black 64px, black calc(100% - 58px), transparent 100%)",
+      }}
+    >
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-5 pb-6 pt-20">
         {items.map((item) => (
           <StreamItemView key={item.id} item={item} onSend={onSend} />
         ))}

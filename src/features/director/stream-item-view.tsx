@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Brand } from "@/components/ui/brand";
 import { Button } from "@/components/ui/button";
 import { Card, Icon } from "@/components/ui";
 import { Markdown } from "@/components/ui/markdown";
@@ -79,7 +78,7 @@ function StreamItemViewImpl({
     case "user":
       return (
         <div className="flex justify-end">
-          <div className="max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent/15 px-4 py-2.5 text-sm text-fg">
+          <div className="max-w-[80%] whitespace-pre-wrap rounded-[22px] rounded-br-[8px] bg-[#27272a] px-4 py-2.5 text-[14px] leading-6 text-[#f4f4f5]">
             {item.text}
           </div>
         </div>
@@ -88,8 +87,12 @@ function StreamItemViewImpl({
     case "message":
       return (
         <div className="flex justify-start gap-3">
-          <Brand showWordmark={false} className="mt-1 shrink-0" />
-          <Markdown className="max-w-[85%]">{localizeAgentMessage(item.text)}</Markdown>
+          <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/[0.06] ring-1 ring-white/[0.06]">
+            <img src="/brand/wm-symbol-white.svg" alt="" className="h-5 w-5 object-contain opacity-80" draggable={false} />
+          </span>
+          <Markdown className="max-w-[85%] text-[14px] leading-6 text-[#d4d4d8] [&_a]:text-[#f4f4f5] [&_blockquote]:border-[#3f3f46] [&_code]:bg-[#27272a] [&_h1]:text-[#f4f4f5] [&_h2]:text-[#f4f4f5] [&_h3]:text-[#f4f4f5] [&_strong]:text-[#f4f4f5]">
+            {localizeAgentMessage(item.text)}
+          </Markdown>
         </div>
       );
 
@@ -97,10 +100,10 @@ function StreamItemViewImpl({
       return (
         <div
           className={cn(
-            "rounded-xl px-3.5 py-2 text-xs",
-            item.tone === "error" && "bg-danger/10 text-danger",
-            item.tone === "success" && "bg-success/10 text-success",
-            item.tone === "info" && "bg-ink-800 text-fg-muted",
+            "rounded-[14px] px-3.5 py-2 text-[12px]",
+            item.tone === "error" && "bg-red-500/10 text-red-300",
+            item.tone === "success" && "bg-emerald-500/10 text-emerald-300",
+            item.tone === "info" && "bg-white/[0.05] text-[#a1a1aa]",
           )}
         >
           {item.text}
@@ -109,11 +112,11 @@ function StreamItemViewImpl({
 
     case "activity":
       return (
-        <div className="flex items-center gap-2.5 text-xs text-fg-muted">
+        <div className="flex items-center gap-2.5 text-[12px] text-[#71717a]">
           {item.status === "running" ? (
-            <Spinner className="size-3.5 text-accent" />
+            <Spinner className="size-3.5 text-[#a1a1aa]" />
           ) : (
-            <span className={cn("size-1.5 rounded-full", item.status === "failed" ? "bg-danger" : "bg-fg-subtle")} />
+            <span className={cn("size-1.5 rounded-full", item.status === "failed" ? "bg-red-400" : "bg-[#52525b]")} />
           )}
           <span>
             {activityLabel(item.toolName)}
@@ -125,8 +128,8 @@ function StreamItemViewImpl({
     case "tool-generation": {
       if (item.status === "running") {
         return (
-          <Card className="flex items-center gap-2.5 px-4 py-3 text-xs text-text-secondary">
-            <Spinner className="size-3.5 text-accent" />
+          <Card className="flex items-center gap-2.5 border-white/[0.06] bg-[#1f1f22] px-4 py-3 text-[12px] text-[#a1a1aa]">
+            <Spinner className="size-3.5 text-[#a1a1aa]" />
             Rendering…
           </Card>
         );
@@ -135,10 +138,10 @@ function StreamItemViewImpl({
       if (item.status === "awaiting-confirmation" && !item.confirmed) {
         const c = conversationMessages(appLocale()).confirmation;
         return (
-          <Card className="border-accent/30 p-4">
+          <Card className="border-white/[0.08] bg-[#1f1f22] p-4 text-[#d4d4d8]">
             <Markdown>{item.previewMessage ?? c.defaultQuestion}</Markdown>
             {typeof item.previewCredits === "number" && (
-              <p className="mt-1 text-xs text-text-tertiary">
+              <p className="mt-1 text-xs text-[#71717a]">
                 {c.credits.replace("{count}", String(item.previewCredits))}
               </p>
             )}
@@ -156,7 +159,7 @@ function StreamItemViewImpl({
 
       if (item.status === "failed") {
         return (
-          <div className="flex items-center gap-2 rounded-xl bg-danger/10 px-3.5 py-2 text-xs text-danger">
+          <div className="flex items-center gap-2 rounded-[14px] bg-red-500/10 px-3.5 py-2 text-xs text-red-300">
             <Icon name="close" size={13} />
             Generation failed{item.errorMessage ? `: ${item.errorMessage}` : "."}
           </div>
@@ -165,7 +168,7 @@ function StreamItemViewImpl({
 
       // completed (or a confirmed preview that has since produced media)
       return (
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden border-white/[0.06] bg-[#1f1f22]">
           {item.resultUrl && (
             <GenerationMedia url={item.resultUrl} kind={item.resultKind} aspectRatio={item.aspectRatio} />
           )}

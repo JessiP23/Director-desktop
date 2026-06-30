@@ -266,6 +266,18 @@ body {
 *::-webkit-scrollbar-thumb:hover { background-color: var(--surface-4); }
 ::selection { background: var(--accent-muted); }
 
+@keyframes director-max-label-shimmer {
+  0%,
+  50% { background-position: -300% 0; }
+  78%,
+  100% { background-position: 300% 0; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* 4 ── Accessibility: honor system reduce settings ─────────────────── */
 @media (prefers-reduced-transparency: reduce) {
   :root, :root.light { --material-sidebar: var(--surface-1); --material-toolbar: var(--surface-1); --material-popover: var(--surface-0); }

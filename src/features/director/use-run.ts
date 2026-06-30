@@ -1,6 +1,6 @@
 import * as React from "react";
 import { directorApi } from "@/lib/api/director";
-import type { DirectorEvent, DirectorQuality, DirectorRun } from "@/lib/director/contract/director";
+import type { DirectorEvent, DirectorQuality, DirectorReference, DirectorRun } from "@/lib/director/contract/director";
 import { buildStream, type StreamItem } from "@/lib/director/stream";
 import { useDirectorRunStream } from "@/lib/director/use-director-run-stream";
 
@@ -156,7 +156,7 @@ export function useRun(
   }, [isRunning]);
 
   const send = React.useCallback(
-    async (prompt: string, options: { quality?: DirectorQuality } = {}) => {
+    async (prompt: string, options: { quality?: DirectorQuality; references?: DirectorReference[] } = {}) => {
       const text = prompt.trim();
       if (!runId || !text) return;
       // Guard against a concurrent turn (the backend returns 409 "already
@@ -171,7 +171,7 @@ export function useRun(
       setPendingPrompt(text);
       try {
         console.info(`[DESKTOP:run] continueRun prompt="${text.slice(0, 120)}"`);
-        const updated = await directorApi.continueRun(runId, { prompt: text, quality: options.quality });
+        const updated = await directorApi.continueRun(runId, { prompt: text, quality: options.quality, references: options.references ?? [] });
         console.info(`[DESKTOP:run] continueRun response id=${updated.id} title="${updated.title}" status=${updated.status}`);
         setRun(updated);
         // Stream the new turn (history already loaded; follow=1 scopes to it).

@@ -46,6 +46,10 @@ function Gate() {
         <React.Suspense fallback={null}>
           <PalmierGallery />
         </React.Suspense>
+      ) : route === "director" ? (
+        <ErrorBoundary>
+          <DirectorWorkspace />
+        </ErrorBoundary>
       ) : status === "loading" ? (
         <div className="flex h-full items-center justify-center text-text-tertiary">
           <Spinner className="size-5 text-accent" />
