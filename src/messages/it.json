@@ -61,6 +61,45 @@
         ]
       }
     },
+    "sidebar": {
+      "signIn": "Accedi",
+      "saveChats": "Salva le tue chat",
+      "nav": {
+        "memory": "Memoria",
+        "skills": "Skills",
+        "generations": "Generazioni",
+        "connectors": "Connettori"
+      },
+      "recent": "Produzioni recenti",
+      "deleteRun": "Elimina produzione",
+      "newProduction": "Nuova produzione",
+      "emptyRuns": "Ancora nessuna produzione",
+      "emptyRunsHint": "Scrivi a Director per iniziare una nuova produzione.",
+      "cta": {
+        "aria": "Vedi piani e prezzi Director",
+        "eyebrow": "Promo",
+        "title": "Upgrade Director"
+      },
+      "profile": {
+        "plan": "Director desktop",
+        "creditsTitle": "Crediti",
+        "creditsValue": "Account desktop",
+        "creditsHint": "Sincronizzato con il tuo account WM Studio.",
+        "upgradePlan": "Aggiorna piano",
+        "get": "Vai",
+        "workspaceLabel": "Workspace corrente",
+        "workspaceName": "Il mio Workspace",
+        "workspaceRole": "Personale",
+        "settings": "Profilo e impostazioni",
+        "pricing": "Pricing",
+        "language": "Lingua",
+        "appearance": "Aspetto",
+        "appearanceAuto": "Auto",
+        "appearanceLight": "Chiaro",
+        "appearanceDark": "Scuro",
+        "signOut": "Esci"
+      }
+    },
     "references": {
       "title": "Riferimenti",
       "empty": "Nessun riferimento",

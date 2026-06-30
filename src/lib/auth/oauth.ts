@@ -12,6 +12,8 @@
  * ── One-time Supabase setup (Authentication → URL Configuration → Redirect URLs) ──
  *   Add all three (the first free port is used; the others are fallbacks):
  *     http://localhost:8788   http://localhost:8789   http://localhost:8790
+ *   For browser-only dev previews, also add:
+ *     http://localhost:1421
  *   If a redirect URL is NOT allow-listed, Supabase silently falls back to the
  *   Site URL (the web app) — which is exactly the "lands on wmstudio" symptom.
  *   Also enable the Google + Apple providers.
@@ -26,6 +28,14 @@ const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window
 const LOOPBACK_PORTS = [8788, 8789, 8790];
 
 export type OAuthProvider = "google" | "apple";
+
+function browserRedirectUrl() {
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  if (url.hostname === "127.0.0.1") url.hostname = "localhost";
+  return url.origin;
+}
 
 /** Shown in the browser tab after the redirect; the app is already signed in. */
 const SUCCESS_HTML = `<!doctype html><html><head><meta charset="utf-8"/>
@@ -51,7 +61,7 @@ export async function signInWithProvider(provider: OAuthProvider): Promise<void>
     // Browser dev fallback: standard in-page redirect.
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: browserRedirectUrl() },
     });
     if (error) throw new Error(error.message);
     if (data.url) window.location.href = data.url;

@@ -17,7 +17,7 @@ unsigned build to users.
    signature. If its version is newer than the running app, an update is
    "available".
 3. The [`UpdateButton`](../src/components/layout/update-button.tsx) appears in the
-   title bar (amber accent). **It is invisible when already up to date.**
+   Director sidebar footer. **It is invisible when already up to date.**
 4. On click: `downloadAndInstall()` downloads `Director.app.tar.gz`, verifies its
    signature against the pinned `pubkey`, installs it in place, then
    `relaunch()` restarts into the new version.
